@@ -20,21 +20,65 @@
 </head>
 <body>
 
+    <!-- ====== SPLASH SCREEN (شاشة البداية) ====== -->
+<div id="splash-screen" class="splash-screen">
+    <div class="splash-content">
+    <div class="splash-logo">
+        <i class="fas fa-chart-line"></i>
+        <span>Track<span>Sphere</span></span>
+    </div>
+    <p class="splash-subtitle" data-i18n="splash_title">تتبع عاداتك اليومية</p>
+
+    <div class="splash-buttons">
+        <button id="splash-start" class="splash-btn primary" data-i18n="splash_start">
+            <i class="fas fa-play"></i> ابدأ
+        </button>
+        <button id="splash-settings" class="splash-btn secondary" data-i18n="splash_settings">
+            <i class="fas fa-cog"></i> الإعدادات
+        </button>
+        <button id="splash-info" class="splash-btn secondary" data-i18n="splash_info">
+            <i class="fas fa-info-circle"></i> معلومات
+        </button>
+        <button id="splash-about" class="splash-btn secondary" data-i18n="splash_about">
+            <i class="fas fa-user"></i> عن المطور
+        </button>
+    </div>
+
+    <div class="splash-footer">
+        <span>v1.1</span>
+        <span>#Mahdawi_Challenge</span>
+    </div>
+ </div>
+</div>
+
+<!-- ====== SPLASH OVERLAY (مودال info/settings) ====== -->
+<div id="splash-modal" class="splash-modal" style="display:none;">
+    <div class="splash-modal-content">
+        <button class="splash-modal-close" onclick="closeSplashModal()">✕</button>
+        <div id="splash-modal-body">
+            <!-- المحتوى هيتغير حسب الزر -->
+        </div>
+    </div>
+</div>
+
     <!-- ====== HEADER ====== -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Track<span>Sphere</span></span>
-                </div>
-                <div class="header-controls">
-                    <button id="theme-toggle" title="تبديل الوضع"><i class="fas fa-moon"></i></button>
-                    <button id="reset-btn" class="btn-danger" title="حذف جميع البيانات"><i class="fas fa-trash"></i></button>
-                </div>
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>Track<span>Sphere</span></span>
+            </div>
+            <div class="header-controls">
+                <!-- 👇 زر الإعدادات الجديد -->
+                <button id="header-settings" class="btn-settings" title="الإعدادات">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button id="reset-btn" class="btn-danger" title="حذف جميع البيانات"><i class="fas fa-trash"></i></button>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- ====== STATS ====== -->
     <section id="stats">
@@ -43,22 +87,22 @@
                 <div class="stat-card">
                     <i class="fas fa-calendar-check"></i>
                     <span class="stat-number" id="total-habits">0</span>
-                    <span class="stat-label">إجمالي العادات</span>
+                    <span class="stat-label" data-i18n="stats_total_habits">إجمالي العادات</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-fire"></i>
                     <span class="stat-number" id="total-streak">0</span>
-                    <span class="stat-label">أطول سلسلة</span>
+                    <span class="stat-label" data-i18n="stats_best_streak">أطول سلسلة</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-percent"></i>
                     <span class="stat-number" id="completion-rate">0%</span>
-                    <span class="stat-label">نسبة الإنجاز</span>
+                    <span class="stat-label" data-i18n="stats_completion">نسبة الإنجاز</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-star"></i>
                     <span class="stat-number" id="total-points">0</span>
-                    <span class="stat-label">النقاط</span>
+                    <span class="stat-label" data-i18n="stats_points">النقاط</span>
                 </div>
             </div>
         </div>
@@ -162,6 +206,7 @@
 
     <!-- ====== SCRIPTS ====== -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="js/language.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/habits.js"></script>
     <script src="js/charts.js"></script>

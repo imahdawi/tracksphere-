@@ -146,26 +146,47 @@ header {
     white-space: nowrap;
 }
 
-/* ====== LOGOUT BUTTON ====== */
-.btn-logout {
-    width: 38px;
-    height: 38px;
+/* ====== HEADER BUTTONS ====== */
+.header-controls button {
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     border: 1px solid var(--border);
     background: var(--card);
-    color: var(--text-secondary);
+    color: var(--text);
     cursor: pointer;
     transition: var(--transition);
-    font-size: 1rem;
+    font-size: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.btn-logout:hover {
-    border-color: #FF1744;
-    color: #FF1744;
+.header-controls button:hover {
+    border-color: var(--primary);
     transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(108, 99, 255, 0.15);
+}
+
+/* 👇 زر الإعدادات الخاص */
+.btn-settings {
+    color: var(--text-secondary) !important;
+}
+
+.btn-settings:hover {
+    color: var(--text) !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-danger {
+    background: rgba(255, 23, 68, 0.12) !important;
+    border-color: rgba(255, 23, 68, 0.3) !important;
+    color: #FF1744 !important;
+}
+
+.btn-danger:hover {
+    background: rgba(255, 23, 68, 0.25) !important;
+    border-color: #FF1744 !important;
 }
 
 /* ====== STATS ====== */
@@ -1141,4 +1162,286 @@ footer {
     footer p {
         font-size: 0.7rem !important;
     }
+}
+
+/* ================================================================
+   🚀 SPLASH SCREEN (شاشة البداية)
+   ================================================================ */
+
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: all 0.6s ease;
+}
+
+.splash-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.splash-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.splash-logo {
+    font-size: 3.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.splash-logo i {
+    color: var(--primary);
+    font-size: 3.5rem;
+}
+
+.splash-logo span:last-child {
+    color: var(--primary);
+}
+
+.splash-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+/* ====== أزرار الشاشة ====== */
+.splash-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.splash-btn {
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: none;
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.splash-btn.primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+}
+
+.splash-btn.primary:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 30px rgba(108, 99, 255, 0.5);
+}
+
+.splash-btn.secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.splash-btn.secondary:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.splash-footer {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* ====== SPLASH MODAL ====== */
+.splash-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.splash-modal-content {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    max-width: 450px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalFade 0.3s ease;
+}
+
+@keyframes modalFade {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.splash-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.splash-modal-close:hover {
+    color: var(--text);
+    transform: rotate(90deg);
+}
+
+.splash-modal-body {
+    padding-top: 8px;
+}
+
+.splash-modal-body h2 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: var(--primary);
+}
+
+.splash-modal-body p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.splash-modal-body .modal-section {
+    margin-top: 16px;
+}
+
+.splash-modal-body .modal-section h4 {
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 480px) {
+    .splash-logo {
+        font-size: 2.8rem;
+    }
+    .splash-logo i {
+        font-size: 2.8rem;
+    }
+    .splash-btn {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    .splash-modal-content {
+        padding: 20px;
+    }
+}
+
+/* ================================================================
+   ⚙️ SETTINGS MODAL - متناسق
+   ================================================================ */
+
+.settings-group {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    margin-bottom: 4px;
+}
+
+.settings-group:last-of-type {
+    border-bottom: none;
+}
+
+.settings-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.settings-label i {
+    color: var(--primary);
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+}
+
+.settings-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.settings-option-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.settings-option-btn:hover {
+    border-color: var(--primary);
+    color: var(--text);
+    background: var(--primary-light);
+}
+
+.settings-option-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.25);
+}
+
+.settings-option-btn.active:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 4px 30px rgba(108, 99, 255, 0.35);
 }

@@ -42,14 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof resetChartState === 'function') resetChartState();
         initChart();
     }, 200);
+
+    // ====== التحكم في شاشة البداية (تظهر كل مرة) ======
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.classList.remove('hidden');
+    }
 });
 
 // ====== ADD HABIT ======
 addBtn.addEventListener('click', () => {
     const name = habitInput.value.trim();
     const category = habitCategory.value;
-    if (!name) return showToast('⚠️ من فضلك اكتب اسم العادة', 'error');
-    if (habits.some(h => h.name.toLowerCase() === name.toLowerCase())) return showToast('⚠️ هذه العادة موجودة بالفعل', 'warning');
+    if (!name) return showToast('toast_error_empty_name', 'error');
+    if (habits.some(h => h.name.toLowerCase() === name.toLowerCase())) return showToast('toast_error_exists', 'warning');
     habits.push({
         id: Date.now(),
         name: name,
@@ -67,7 +73,7 @@ addBtn.addEventListener('click', () => {
     updateStats();
     updateAchievements();
     updateChart();
-    showToast(`✅ تم إضافة "${name}" بنجاح`, 'success');
+    showToast('toast_success_added', 'success', name);
 });
 
 // ====== TOGGLE HABIT ======
@@ -75,7 +81,7 @@ function toggleHabit(id) {
     const habit = habits.find(h => h.id === id);
     if (!habit) return showToast('⚠️ العادة غير موجودة', 'error');
     const today = new Date().toDateString();
-    if (habit.history.includes(today)) return showToast(`⚠️ "${habit.name}" مسجلة اليوم بالفعل!`, 'warning');
+    if (habit.history.includes(today)) return showToast('toast_warning_toggle', 'warning', habit.name);
     habit.history.push(today);
     habit.completed = true;
     calculateStreak(habit);
@@ -84,7 +90,7 @@ function toggleHabit(id) {
     updateStats();
     updateAchievements();
     updateChart();
-    showToast(`✅ تم تسجيل "${habit.name}" بنجاح`, 'success');
+    showToast('toast_success_toggle', 'success', habit.name);
 }
 
 // ====== CALCULATE STREAK ======
@@ -114,13 +120,13 @@ function deleteHabit(id) {
     updateStats();
     updateAchievements();
     updateChart();
-    showToast(`🗑️ تم حذف "${habit.name}"`, 'info');
+    showToast('toast_info_deleted', 'info', habit.name);
 }
 
 // ====== RENDER HABITS ======
 function renderHabits() {
     if (habits.length === 0) {
-        habitsList.innerHTML = `<div class="empty-state"><i class="fas fa-plus-circle"></i><p>لا توجد عادات بعد! أضف عادة جديدة 👆</p></div>`;
+        habitsList.innerHTML = `<div class="empty-state"><i class="fas fa-plus-circle"></i><p data-i18n="habits_empty">لا توجد عادات بعد! أضف عادة جديدة 👆</p></div>`;
         return;
     }
     habitsList.innerHTML = habits.map(habit => {
@@ -135,7 +141,7 @@ function renderHabits() {
                     <span class="habit-category">${habit.category}</span>
                 </div>
             </div>
-            <div class="habit-streak"><i class="fas fa-fire"></i> ${habit.streak || 0} يوم</div>
+            <div class="habit-streak"><i class="fas fa-fire"></i> ${habit.streak || 0} ${t('habits_day')}</div>
             <div class="habit-actions">
                 <button class="btn-check" onclick="toggleHabit(${habit.id})" ${isDoneToday ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-check"></i></button>
                 <button class="btn-delete" onclick="deleteHabit(${habit.id})"><i class="fas fa-trash"></i></button>
@@ -176,31 +182,26 @@ function getCategoryIcon(category) {
 document.getElementById('reset-btn').addEventListener('click', () => {
     if (confirm('⚠️ هل أنت متأكد من حذف جميع البيانات؟')) {
         if (confirm('⚠️ هل أنت متأكد مرة أخرى؟')) {
+            localStorage.removeItem('tracksphere_data');
             habits = [];
             points = 0;
             achievements = [];
-            localStorage.clear();
-            location.reload();
+            renderHabits();
+            updateStats();
+            updateAchievements();
+            updateChart();
+            showToast('🗑️ تم حذف جميع البيانات بنجاح', 'success');
         }
     }
 });
 
-// ====== THEME TOGGLE ======
-document.getElementById('theme-toggle').addEventListener('click', () => {
-    document.body.classList.toggle('light');
-    const icon = document.querySelector('#theme-toggle i');
-    if (document.body.classList.contains('light')) {
-        icon.className = 'fas fa-sun';
-        localStorage.setItem('theme', 'light');
-    } else {
-        icon.className = 'fas fa-moon';
-        localStorage.setItem('theme', 'dark');
-    }
-});
+// ================================================================
+//  🌐 THEME (من الإعدادات بس)
+// ================================================================
 
+// ====== استرجاع الثيم ======
 if (localStorage.getItem('theme') === 'light') {
     document.body.classList.add('light');
-    document.querySelector('#theme-toggle i').className = 'fas fa-sun';
 }
 
 // ================================================================
@@ -231,54 +232,29 @@ function generateShareHTML() {
     const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
 
     let html = `
-        <div style="
-            text-align:center;
-            padding:24px 20px;
-            background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);
-            border-radius:20px;
-            border:2px solid #6C63FF;
-            width:500px;
-            margin:0 auto;
-            font-family: 'Cairo', sans-serif;
-            box-sizing:border-box;
-        ">
-            <!-- Logo -->
+        <div style="text-align:center;padding:24px 20px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;width:500px;margin:0 auto;font-family:'Cairo',sans-serif;box-sizing:border-box;">
             <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px;">
                 <span style="font-size:2.4rem;">🚀</span>
                 <span style="font-size:2rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
             </div>
             <div style="color:#A0A0C0;font-size:1rem;margin-bottom:10px;">${todayStr}</div>
-
             <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
-
-            <!-- Stats -->
             <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:10px 0;">
                 <span style="background:rgba(108,99,255,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;">🔥 ${maxStreak} يوم</span>
                 <span style="background:rgba(0,200,83,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#00C853;">📈 ${rate}%</span>
                 <span style="background:rgba(255,214,0,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#FFD600;">⭐ ${points}</span>
             </div>
-
             ${bestHabit && bestHabit.streak > 0 ? `
             <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
             <div style="font-size:1rem;color:#A0A0C0;">
                 🏆 أكثر عادة: <strong style="color:#fff;">${bestHabit.icon} ${bestHabit.name}</strong>
                 <span style="color:#FFD600;font-size:0.9rem;">(${bestHabit.streak} يوم)</span>
             </div>` : ''}
-
             <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;" />
-
-            <!-- Message -->
-            <div style="font-size:1.2rem;color:#fff;font-weight:500;margin:6px 0;">
-                💪 أنا بحسن من نفسي يوم عن يوم!
-            </div>
-
-            <!-- Hashtags -->
-            <div style="font-size:0.8rem;color:#6C63FF;margin-top:8px;">
-                #Mahdawi_Challenge
-            </div>
+            <div style="font-size:1.2rem;color:#fff;font-weight:500;margin:6px 0;">💪 أنا بحسن من نفسي يوم عن يوم!</div>
+            <div style="font-size:0.8rem;color:#6C63FF;margin-top:8px;">#Mahdawi_Challenge</div>
         </div>
     `;
-
     return html;
 }
 
@@ -327,7 +303,6 @@ function generateShareImage() {
         return;
     }
 
-    // 👇 العنصر يكون في النص
     preview.style.display = 'flex';
     preview.style.justifyContent = 'center';
     preview.style.alignItems = 'center';
@@ -355,11 +330,178 @@ function generateShareImage() {
         link.download = `tracksphere_${new Date().toISOString().split('T')[0]}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
-        showToast('📸 تم تحميل الصورة!', 'success');
+        showToast('toast_share_image', 'success');
     })
     .catch(err => {
         console.error('Error generating image:', err);
-        showToast('⚠️ حدث خطأ في إنشاء الصورة، حاول مرة أخرى', 'error');
+        showToast('toast_share_error', 'error');
+    });
+}
+
+// ================================================================
+//  🚀 SPLASH SCREEN
+// ================================================================
+
+const splashScreen = document.getElementById('splash-screen');
+const splashStart = document.getElementById('splash-start');
+const splashSettings = document.getElementById('splash-settings');
+const splashInfo = document.getElementById('splash-info');
+const splashAbout = document.getElementById('splash-about');
+const splashModal = document.getElementById('splash-modal');
+const splashModalBody = document.getElementById('splash-modal-body');
+
+// ====== إخفاء شاشة البداية ======
+function hideSplash() {
+    if (splashScreen) {
+        splashScreen.classList.add('hidden');
+    }
+}
+
+// ====== فتح المودال ======
+function openSplashModal(content) {
+    if (splashModalBody) {
+        splashModalBody.innerHTML = content;
+    }
+    if (splashModal) {
+        splashModal.style.display = 'flex';
+    }
+}
+
+// ====== غلق المودال ======
+function closeSplashModal() {
+    if (splashModal) {
+        splashModal.style.display = 'none';
+    }
+}
+
+// ====== زر Start ======
+if (splashStart) {
+    splashStart.addEventListener('click', hideSplash);
+}
+
+// ====== زر Settings ======
+if (splashSettings) {
+    splashSettings.addEventListener('click', openSettingsModal);
+}
+
+function openSettingsModal() {
+    const isLight = document.body.classList.contains('light');
+    const themeText = isLight ? t('settings_theme_light') : t('settings_theme_dark');
+    const themeIcon = isLight ? '☀️' : '🌙';
+
+    openSplashModal(`
+        <h2 style="text-align:center;font-size:1.6rem;margin-bottom:20px;color:var(--primary);">
+            ⚙️ ${t('settings_title')}
+        </h2>
+        
+        <div class="settings-group">
+            <div class="settings-label">
+                <i class="fas fa-globe"></i>
+                <span>${t('settings_language')}</span>
+            </div>
+            <div class="settings-options">
+                <button onclick="setLanguage('ar')" class="settings-option-btn ${currentLang === 'ar' ? 'active' : ''}">
+                    ${t('settings_language_ar')}
+                </button>
+                <button onclick="setLanguage('en')" class="settings-option-btn ${currentLang === 'en' ? 'active' : ''}">
+                    ${t('settings_language_en')}
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">
+                <i class="fas fa-moon"></i>
+                <span>${t('settings_theme')}</span>
+            </div>
+            <div class="settings-options">
+                <button onclick="toggleThemeFromSettings()" class="settings-option-btn" style="flex:1;justify-content:center;gap:8px;">
+                    <span>${themeIcon}</span>
+                    <span>${themeText}</span>
+                    <span style="font-size:0.8rem;color:var(--text-secondary);">(تبديل)</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-group" style="border-bottom:none;margin-bottom:0;padding-bottom:0;">
+            <div class="settings-label" style="justify-content:center;gap:6px;">
+                <i class="fas fa-tag"></i>
+                <span style="font-size:0.9rem;color:var(--text-secondary);">${t('settings_version')} ${t('version')}</span>
+            </div>
+        </div>
+    `);
+}
+
+// ====== تبديل الثيم من الإعدادات ======
+function toggleThemeFromSettings() {
+    document.body.classList.toggle('light');
+    const isLight = document.body.classList.contains('light');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    openSettingsModal();
+}
+
+// ====== زر Info ======
+if (splashInfo) {
+    splashInfo.addEventListener('click', function() {
+        openSplashModal(`
+            <h2>${t('info_title')}</h2>
+            <p>${t('info_desc')}</p>
+            <div class="modal-section">
+                <h4>${t('info_features')}</h4>
+                <p>${t('info_features_list')}</p>
+            </div>
+            <div class="modal-section">
+                <h4>${t('settings_version')}</h4>
+                <p>${t('version')}</p>
+            </div>
+        `);
+    });
+}
+
+// ====== زر About Us ======
+if (splashAbout) {
+    splashAbout.addEventListener('click', function() {
+        openSplashModal(`
+            <h2>${t('about_title')}</h2>
+            <p><strong>${t('about_name')}</strong></p>
+            <div class="modal-section">
+                <h4>🚀 عني</h4>
+                <p>${t('about_desc')}</p>
+            </div>
+            <div class="modal-section">
+                <h4>${t('about_follow')}</h4>
+                <p>
+                    🐙 <a href="https://github.com/imahdawi" target="_blank" style="color:var(--primary);">GitHub</a><br>
+                    🎵 <a href="https://tiktok.com/@imahdawi" target="_blank" style="color:var(--primary);">TikTok</a><br>
+                    📧 <a href="mailto:mahdi.business.new@gmail.com" style="color:var(--primary);">mahdi.business.new@gmail.com</a>
+                </p>
+            </div>
+            <div class="modal-section">
+                <h4>📦 الإصدار</h4>
+                <p>${t('version')}</p>
+            </div>
+        `);
+    });
+}
+
+// ====== غلق المودال عند الضغط على الخلفية ======
+if (splashModal) {
+    splashModal.addEventListener('click', function(e) {
+        if (e.target === splashModal) {
+            closeSplashModal();
+        }
+    });
+}
+
+// ================================================================
+//  ⚙️ HEADER SETTINGS BUTTON
+// ================================================================
+
+const headerSettingsBtn = document.getElementById('header-settings');
+
+if (headerSettingsBtn) {
+    headerSettingsBtn.addEventListener('click', function() {
+        openSettingsModal();
     });
 }
 
@@ -367,12 +509,19 @@ function generateShareImage() {
 //  🔔 TOAST
 // ================================================================
 
-function showToast(message, type = 'info') {
+function showToast(messageKey, type = 'info', name = '') {
+    let message = t(messageKey);
+    if (name) {
+        message = message.replace('{name}', name);
+    }
+
     const oldToast = document.querySelector('.toast-notification');
     if (oldToast) oldToast.remove();
+
     const toast = document.createElement('div');
     toast.className = `toast-notification toast-${type}`;
     toast.textContent = message;
+
     const colors = { success: '#00C853', error: '#FF1744', warning: '#FFD600', info: '#2979FF' };
     toast.style.cssText = `
         position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -384,6 +533,7 @@ function showToast(message, type = 'info') {
         font-family: 'Cairo', sans-serif;
     `;
     document.body.appendChild(toast);
+
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(-50%) translateY(-20px)';
