@@ -227,34 +227,48 @@ function generateShareHTML() {
     const completedToday = habits.filter(h => h.history.includes(today)).length;
     const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
     const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
-    const todayStr = new Date().toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const todayStr = new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
+
     let html = `
-        <div style="text-align:center;padding:24px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;max-width:450px;margin:0 auto;">
-            <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
-                <span style="font-size:2rem;">🚀</span>
-                <span style="font-size:1.6rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
+        <div style="text-align:center;padding:30px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;max-width:600px;margin:0 auto;font-family: 'Cairo', sans-serif;">
+            <!-- Logo -->
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;">
+                <span style="font-size:2.8rem;">🚀</span>
+                <span style="font-size:2.2rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
             </div>
-            <div style="color:#A0A0C0;font-size:0.8rem;margin-bottom:10px;">${todayStr}</div>
-            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
-            <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:10px 0;">
-                <span style="background:rgba(108,99,255,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;">🔥 ${maxStreak} يوم</span>
-                <span style="background:rgba(0,200,83,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;color:#00C853;">📈 ${rate}%</span>
-                <span style="background:rgba(255,214,0,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;color:#FFD600;">⭐ ${points}</span>
+            <div style="color:#A0A0C0;font-size:1.2rem;margin-bottom:14px;">${todayStr}</div>
+
+            <hr style="border-color:rgba(108,99,255,0.15);margin:12px 0;" />
+
+            <!-- Stats -->
+            <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:14px 0;">
+                <span style="background:rgba(108,99,255,0.12);padding:8px 20px;border-radius:50px;font-weight:600;font-size:1.2rem;">🔥 ${maxStreak} يوم</span>
+                <span style="background:rgba(0,200,83,0.12);padding:8px 20px;border-radius:50px;font-weight:600;font-size:1.2rem;color:#00C853;">📈 ${rate}%</span>
+                <span style="background:rgba(255,214,0,0.12);padding:8px 20px;border-radius:50px;font-weight:600;font-size:1.2rem;color:#FFD600;">⭐ ${points}</span>
             </div>
+
             ${bestHabit && bestHabit.streak > 0 ? `
-            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
-            <div style="font-size:0.9rem;color:#A0A0C0;">
-                🏆 أكثر عادة: <strong style="color:#fff;">${bestHabit.icon} ${bestHabit.name}</strong>
-                <div style="font-size:0.8rem;color:#FFD600;">${bestHabit.streak} يوم متتالي!</div>
+            <hr style="border-color:rgba(108,99,255,0.15);margin:12px 0;" />
+            <div style="font-size:1.2rem;color:#A0A0C0;">
+                🏆 أكثر عادة: <strong style="color:#fff;font-size:1.3rem;">${bestHabit.icon} ${bestHabit.name}</strong>
+                <div style="font-size:1.1rem;color:#FFD600;">${bestHabit.streak} يوم متتالي!</div>
             </div>` : ''}
-            <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;" />
-            <div style="font-size:1rem;color:#fff;font-weight:500;margin:6px 0;">💪 أنا بحسن من نفسي يوم عن يوم!</div>
-            <div style="font-size:0.65rem;color:#6C63FF;margin-top:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">
+
+            <hr style="border-color:rgba(108,99,255,0.15);margin:14px 0;" />
+
+            <!-- Message -->
+            <div style="font-size:1.4rem;color:#fff;font-weight:500;margin:10px 0;">
+                💪 أنا بحسن من نفسي يوم عن يوم!
+            </div>
+
+            <!-- Hashtags -->
+            <div style="font-size:0.9rem;color:#6C63FF;margin-top:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;">
                 <span>#Mahdawi_Challenge</span>
             </div>
         </div>
     `;
+
     return html;
 }
 
@@ -303,18 +317,34 @@ function generateShareImage() {
         return;
     }
 
+    // 👇 نخلي العنصر كبير ومفهوم
     preview.style.display = 'block';
+    preview.style.width = '600px'; // حجم مناسب
+    preview.style.maxWidth = '100%';
+    preview.style.margin = '0 auto';
+    preview.style.padding = '20px';
+    preview.style.background = '#0A0A1A';
+    preview.style.borderRadius = '20px';
+    preview.style.border = '2px solid #6C63FF';
+
+    // 👇 نحط المحتوى
     preview.innerHTML = generateShareHTML();
 
+    // 👇 نأخذ الصورة بحجم كبير
     html2canvas(preview, {
         backgroundColor: '#0A0A1A',
-        scale: 2,
+        scale: 3, // 👈 دقة عالية (زيادة الوضوح)
         useCORS: true,
         logging: false,
-        width: 500,
-        height: 380
+        width: 600,
+        height: 450,
+        onclone: function(doc) {
+            const videos = doc.querySelectorAll('video');
+            videos.forEach(v => v.pause());
+        }
     })
     .then(canvas => {
+        // 👇 نحولها لرابط تحميل
         const link = document.createElement('a');
         link.download = `tracksphere_${new Date().toISOString().split('T')[0]}.png`;
         link.href = canvas.toDataURL('image/png');

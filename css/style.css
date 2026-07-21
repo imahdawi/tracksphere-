@@ -692,6 +692,20 @@ header {
     margin-right: auto;
 }
 
+/* ====== SHARE PREVIEW (للمعاينة فقط) ====== */
+.share-preview {
+    margin-top: 16px;
+    padding: 20px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    max-width: 600px !important;
+    width: 100% !important;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 200px;
+}
+
 /* ====== TOAST ====== */
 .toast-notification {
     user-select: none;
