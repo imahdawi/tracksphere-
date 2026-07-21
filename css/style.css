@@ -1026,3 +1026,105 @@ footer {
         font-size: 0.65rem !important;
     }
 }
+
+/* ================================================================
+   📱 MOBILE - تقليل الطول وتحسين الظهور
+   ================================================================ */
+
+@media (max-width: 768px) {
+    /* تقليل المسافات بين الأقسام */
+    .section {
+        padding: 30px 0 !important;
+    }
+
+    #stats {
+        margin: 10px 0 10px !important;
+    }
+
+    #add-habit {
+        margin: 5px 0 15px !important;
+    }
+
+    #chart-section {
+        margin: 20px 0 15px !important;
+    }
+
+    #achievements {
+        margin: 15px 0 10px !important;
+    }
+
+    #share-section {
+        margin: 15px 0 10px !important;
+    }
+
+    /* تقليل حجم العناوين */
+    .section-title {
+        font-size: 1.3rem !important;
+        margin-bottom: 20px !important;
+    }
+
+    .section-title::after {
+        width: 50px !important;
+        bottom: -8px !important;
+    }
+
+    /* تقليل padding جوا الكروت */
+    .stat-card {
+        padding: 10px !important;
+    }
+
+    .habit-item {
+        padding: 10px 14px !important;
+    }
+
+    .share-wrapper {
+        padding: 16px 14px !important;
+    }
+
+    /* تقليل الـ footer */
+    footer {
+        padding: 12px 0 !important;
+        margin-top: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .section {
+        padding: 20px 0 !important;
+    }
+
+    .section-title {
+        font-size: 1.1rem !important;
+        margin-bottom: 14px !important;
+    }
+
+    .stat-number {
+        font-size: 1.3rem !important;
+    }
+
+    .stat-label {
+        font-size: 0.7rem !important;
+    }
+
+    .habits-header h2 {
+        font-size: 1.1rem !important;
+    }
+
+    .share-wrapper h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .share-wrapper p {
+        font-size: 0.8rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .share-btn {
+        padding: 6px 12px !important;
+        font-size: 0.7rem !important;
+    }
+
+    footer p {
+        font-size: 0.7rem !important;
+    }
+}
