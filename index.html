@@ -8,11 +8,6 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase SDK (CDN) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -25,23 +20,6 @@
 </head>
 <body>
 
-    <!-- ====== LOGIN OVERLAY ====== -->
-    <div id="login-overlay" class="login-overlay">
-        <div class="login-card">
-            <div class="login-header">
-                <i class="fas fa-chart-line"></i>
-                <h2>TrackSphere</h2>
-                <p>سجل دخولك للمتابعة</p>
-            </div>
-            <div class="login-social-buttons">
-                <button id="login-google" class="login-btn-google">
-                    <i class="fab fa-google"></i> تسجيل دخول بـ Google
-                </button>
-            </div>
-            <div id="login-message" class="login-message"></div>
-        </div>
-    </div>
-
     <!-- ====== HEADER ====== -->
     <header>
         <div class="container">
@@ -51,13 +29,6 @@
                     <span>Track<span>Sphere</span></span>
                 </div>
                 <div class="header-controls">
-                    <div id="user-info" class="user-info" style="display:none;">
-                        <img id="user-avatar" src="" alt="Avatar" />
-                        <span id="user-name"></span>
-                    </div>
-                    <button id="logout-btn" class="btn-logout" title="تسجيل خروج" style="display:none;">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
                     <button id="theme-toggle" title="تبديل الوضع"><i class="fas fa-moon"></i></button>
                     <button id="reset-btn" class="btn-danger" title="حذف جميع البيانات"><i class="fas fa-trash"></i></button>
                 </div>
@@ -188,10 +159,6 @@
             </p>
         </div>
     </footer>
-
-
-            <!-- ✅ الـ Config بعد الـ SDK مباشرة -->
-           <script src="js/firebase-config.js"></script>
 
     <!-- ====== SCRIPTS ====== -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
