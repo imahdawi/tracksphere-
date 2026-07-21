@@ -14,7 +14,9 @@ const completionRateEl = document.getElementById('completion-rate');
 const totalPointsEl = document.getElementById('total-points');
 const todayDateEl = document.getElementById('today-date');
 
-// ====== حساب النقاط ======
+// ================================================================
+//  🛠️ حساب النقاط من العادات الموجودة فقط
+// ================================================================
 function calculatePointsFromHabits() {
     let total = 0;
     habits.forEach(habit => {
@@ -68,7 +70,7 @@ addBtn.addEventListener('click', () => {
     showToast(`✅ تم إضافة "${name}" بنجاح`, 'success');
 });
 
-// ====== TOGGLE ======
+// ====== TOGGLE HABIT ======
 function toggleHabit(id) {
     const habit = habits.find(h => h.id === id);
     if (!habit) return showToast('⚠️ العادة غير موجودة', 'error');
@@ -85,7 +87,23 @@ function toggleHabit(id) {
     showToast(`✅ تم تسجيل "${habit.name}" بنجاح`, 'success');
 }
 
-// ====== DELETE ======
+// ====== CALCULATE STREAK ======
+function calculateStreak(habit) {
+    if (habit.history.length === 0) { habit.streak = 0; return; }
+    let streak = 0;
+    let currentDate = new Date();
+    for (let i = 0; i < habit.history.length; i++) {
+        const dateStr = new Date(currentDate).toDateString();
+        if (habit.history.includes(dateStr)) {
+            streak++;
+            currentDate.setDate(currentDate.getDate() - 1);
+        } else break;
+    }
+    habit.streak = streak;
+    if (streak > habit.bestStreak) habit.bestStreak = streak;
+}
+
+// ====== DELETE HABIT ======
 function deleteHabit(id) {
     const habit = habits.find(h => h.id === id);
     if (!habit) return;
@@ -99,7 +117,7 @@ function deleteHabit(id) {
     showToast(`🗑️ تم حذف "${habit.name}"`, 'info');
 }
 
-// ====== RENDER ======
+// ====== RENDER HABITS ======
 function renderHabits() {
     if (habits.length === 0) {
         habitsList.innerHTML = `<div class="empty-state"><i class="fas fa-plus-circle"></i><p>لا توجد عادات بعد! أضف عادة جديدة 👆</p></div>`;
@@ -126,7 +144,7 @@ function renderHabits() {
     }).join('');
 }
 
-// ====== STATS ======
+// ====== UPDATE STATS ======
 function updateStats() {
     const total = habits.length;
     const today = new Date().toDateString();
@@ -141,14 +159,33 @@ function updateStats() {
     saveData();
 }
 
-// ====== DATE ======
+// ====== UPDATE DATE ======
 function updateDate() {
     const now = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     todayDateEl.textContent = now.toLocaleDateString('ar-EG', options);
 }
 
-// ====== THEME ======
+// ====== CATEGORY ICON ======
+function getCategoryIcon(category) {
+    const icons = { 'صحية': '💪', 'تعليمية': '📚', 'روحية': '🕌', 'رياضية': '⚽', 'أخرى': '✨' };
+    return icons[category] || '✨';
+}
+
+// ====== RESET ======
+document.getElementById('reset-btn').addEventListener('click', () => {
+    if (confirm('⚠️ هل أنت متأكد من حذف جميع البيانات؟')) {
+        if (confirm('⚠️ هل أنت متأكد مرة أخرى؟')) {
+            habits = [];
+            points = 0;
+            achievements = [];
+            localStorage.clear();
+            location.reload();
+        }
+    }
+});
+
+// ====== THEME TOGGLE ======
 document.getElementById('theme-toggle').addEventListener('click', () => {
     document.body.classList.toggle('light');
     const icon = document.querySelector('#theme-toggle i');
@@ -166,20 +203,134 @@ if (localStorage.getItem('theme') === 'light') {
     document.querySelector('#theme-toggle i').className = 'fas fa-sun';
 }
 
-// ====== RESET ======
-document.getElementById('reset-btn').addEventListener('click', () => {
-    if (confirm('⚠️ هل أنت متأكد من حذف جميع البيانات؟')) {
-        if (confirm('⚠️ هل أنت متأكد مرة أخرى؟')) {
-            habits = [];
-            points = 0;
-            achievements = [];
-            localStorage.clear();
-            location.reload();
-        }
-    }
-});
+// ================================================================
+//  📤 SHARE PROGRESS
+// ================================================================
 
-// ====== TOAST ======
+function generateShareText() {
+    const total = habits.length;
+    const today = new Date().toDateString();
+    const completedToday = habits.filter(h => h.history.includes(today)).length;
+    const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
+    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+    const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
+    let text = `🚀 يوم ${todayStr}\n🔥 ${maxStreak} يوم متتالي\n📈 ${rate}% إنجاز\n⭐ ${points} نقطة\n`;
+    if (bestHabit && bestHabit.streak > 0) text += `🏆 ${bestHabit.icon} ${bestHabit.name}: ${bestHabit.streak} يوم\n`;
+    text += `\n💪 أنا بحسن من نفسي يوم عن يوم!\n#Mahdawi_Challenge`;
+    return text;
+}
+
+function generateShareHTML() {
+    const total = habits.length;
+    const today = new Date().toDateString();
+    const completedToday = habits.filter(h => h.history.includes(today)).length;
+    const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
+    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    const todayStr = new Date().toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
+    let html = `
+        <div style="text-align:center;padding:24px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;max-width:450px;margin:0 auto;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+                <span style="font-size:2rem;">🚀</span>
+                <span style="font-size:1.6rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
+            </div>
+            <div style="color:#A0A0C0;font-size:0.8rem;margin-bottom:10px;">${todayStr}</div>
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
+            <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:10px 0;">
+                <span style="background:rgba(108,99,255,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;">🔥 ${maxStreak} يوم</span>
+                <span style="background:rgba(0,200,83,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;color:#00C853;">📈 ${rate}%</span>
+                <span style="background:rgba(255,214,0,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;color:#FFD600;">⭐ ${points}</span>
+            </div>
+            ${bestHabit && bestHabit.streak > 0 ? `
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
+            <div style="font-size:0.9rem;color:#A0A0C0;">
+                🏆 أكثر عادة: <strong style="color:#fff;">${bestHabit.icon} ${bestHabit.name}</strong>
+                <div style="font-size:0.8rem;color:#FFD600;">${bestHabit.streak} يوم متتالي!</div>
+            </div>` : ''}
+            <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;" />
+            <div style="font-size:1rem;color:#fff;font-weight:500;margin:6px 0;">💪 أنا بحسن من نفسي يوم عن يوم!</div>
+            <div style="font-size:0.65rem;color:#6C63FF;margin-top:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">
+                <span>#Mahdawi_Challenge</span>
+            </div>
+        </div>
+    `;
+    return html;
+}
+
+function shareProgress(platform) {
+    switch (platform) {
+        case 'whatsapp':
+            const text = generateShareText();
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            break;
+        case 'instagram':
+            generateShareImage();
+            showToast('📸 تم تحميل الصورة! شاركها في ستوري إنستجرام', 'success');
+            break;
+        case 'tiktok':
+            generateShareImage();
+            showToast('📸 تم تحميل الصورة! ارفعها كفيديو على تيك توك', 'success');
+            break;
+        case 'image':
+            generateShareImage();
+            break;
+        default:
+            showToast('⚠️ منصة غير مدعومة', 'error');
+    }
+}
+
+function generateShareImage() {
+    if (typeof html2canvas === 'undefined') {
+        showToast('⏳ جاري تحميل المكتبة...', 'info');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.onload = function() {
+            showToast('✅ تم التحميل، جاري إنشاء الصورة...', 'success');
+            generateShareImage();
+        };
+        script.onerror = function() {
+            showToast('⚠️ فشل تحميل المكتبة، تأكد من الاتصال بالإنترنت', 'error');
+        };
+        document.head.appendChild(script);
+        return;
+    }
+
+    const preview = document.getElementById('share-preview');
+    if (!preview) {
+        showToast('⚠️ عنصر المعاينة غير موجود', 'error');
+        return;
+    }
+
+    preview.style.display = 'block';
+    preview.innerHTML = generateShareHTML();
+
+    html2canvas(preview, {
+        backgroundColor: '#0A0A1A',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        width: 500,
+        height: 380
+    })
+    .then(canvas => {
+        const link = document.createElement('a');
+        link.download = `tracksphere_${new Date().toISOString().split('T')[0]}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('📸 تم تحميل الصورة!', 'success');
+    })
+    .catch(err => {
+        console.error('Error generating image:', err);
+        showToast('⚠️ حدث خطأ في إنشاء الصورة، حاول مرة أخرى', 'error');
+    });
+}
+
+// ================================================================
+//  🔔 TOAST
+// ================================================================
+
 function showToast(message, type = 'info') {
     const oldToast = document.querySelector('.toast-notification');
     if (oldToast) oldToast.remove();
@@ -203,52 +354,6 @@ function showToast(message, type = 'info') {
         toast.style.transition = 'all 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
-}
-
-// ====== SHARE PROGRESS ======
-function shareProgress(platform) {
-    switch (platform) {
-        case 'whatsapp':
-            // الطريقة المباشرة لفتح واتساب
-            const text = generateShareText();
-            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-            window.open(url, '_blank');
-            break;
-        case 'instagram':
-            generateShareImage();
-            showToast('📸 تم تحميل الصورة! شاركها في ستوري إنستجرام', 'success');
-            break;
-        case 'tiktok':
-            generateShareImage();
-            showToast('📸 تم تحميل الصورة! ارفعها كفيديو على تيك توك', 'success');
-            break;
-        case 'image':
-            generateShareImage();
-            break;
-        default:
-            showToast('⚠️ منصة غير مدعومة', 'error');
-    }
-}
-
-// دالة مساعدة لتوليد نص المشاركة (تأكد من وجودها)
-function generateShareText() {
-    const total = habits.length;
-    const today = new Date().toDateString();
-    const completedToday = habits.filter(h => h.history.includes(today)).length;
-    const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
-    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
-    const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
-    const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
-
-    let text = `🚀 يوم ${todayStr}\n`;
-    text += `🔥 ${maxStreak} يوم متتالي\n`;
-    text += `📈 ${rate}% إنجاز\n`;
-    text += `⭐ ${points} نقطة\n`;
-    if (bestHabit && bestHabit.streak > 0) {
-        text += `🏆 ${bestHabit.icon} ${bestHabit.name}: ${bestHabit.streak} يوم\n`;
-    }
-    text += `\n💪 أنا بحسن من نفسي يوم عن يوم!\n#Mahdawi_Challenge`;
-    return text;
 }
 
 console.log('🚀 TrackSphere - تم التحميل بنجاح!');
