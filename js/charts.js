@@ -7,21 +7,20 @@ let chartInitialized = false;
 // ====== INIT CHART ======
 function initChart() {
     console.log('📊 initChart called, chartInitialized:', chartInitialized);
-    
-    // منع التكرار
+
     if (chartInitialized) {
         console.log('📊 Chart already initialized, skipping...');
         return;
     }
-    
+
     const ctx = document.getElementById('weekly-chart');
     if (!ctx) {
         console.error('📊 Canvas element not found!');
         return;
     }
-    
+
     const data = getChartData();
-    
+
     chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -39,11 +38,13 @@ function initChart() {
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            // 👈 إضافة resize delay عشان يشتغل على الموبايل
+            resizeDelay: 200,
             plugins: {
                 legend: {
-                    labels: { 
+                    labels: {
                         color: getTextColor(),
-                        font: { size: 12 }
+                        font: { size: window.innerWidth < 480 ? 10 : 12 }
                     }
                 },
                 tooltip: {
@@ -65,20 +66,20 @@ function initChart() {
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: { 
+                    ticks: {
                         color: getTextColor(),
                         stepSize: 1,
-                        font: { size: 11 }
+                        font: { size: window.innerWidth < 480 ? 9 : 11 }
                     },
                     grid: {
                         color: 'rgba(108, 99, 255, 0.05)'
                     }
                 },
                 x: {
-                    ticks: { 
+                    ticks: {
                         color: getTextColor(),
-                        font: { size: 11 },
-                        maxRotation: 0
+                        font: { size: window.innerWidth < 480 ? 9 : 11 },
+                        maxRotation: window.innerWidth < 480 ? 45 : 0
                     },
                     grid: {
                         display: false
@@ -91,7 +92,7 @@ function initChart() {
             }
         }
     });
-    
+
     chartInitialized = true;
     updateChartInfo(data.range);
     updateNavButtons();

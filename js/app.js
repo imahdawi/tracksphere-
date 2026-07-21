@@ -205,6 +205,52 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
+// ====== SHARE PROGRESS ======
+function shareProgress(platform) {
+    switch (platform) {
+        case 'whatsapp':
+            // الطريقة المباشرة لفتح واتساب
+            const text = generateShareText();
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            break;
+        case 'instagram':
+            generateShareImage();
+            showToast('📸 تم تحميل الصورة! شاركها في ستوري إنستجرام', 'success');
+            break;
+        case 'tiktok':
+            generateShareImage();
+            showToast('📸 تم تحميل الصورة! ارفعها كفيديو على تيك توك', 'success');
+            break;
+        case 'image':
+            generateShareImage();
+            break;
+        default:
+            showToast('⚠️ منصة غير مدعومة', 'error');
+    }
+}
+
+// دالة مساعدة لتوليد نص المشاركة (تأكد من وجودها)
+function generateShareText() {
+    const total = habits.length;
+    const today = new Date().toDateString();
+    const completedToday = habits.filter(h => h.history.includes(today)).length;
+    const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
+    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+    const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
+
+    let text = `🚀 يوم ${todayStr}\n`;
+    text += `🔥 ${maxStreak} يوم متتالي\n`;
+    text += `📈 ${rate}% إنجاز\n`;
+    text += `⭐ ${points} نقطة\n`;
+    if (bestHabit && bestHabit.streak > 0) {
+        text += `🏆 ${bestHabit.icon} ${bestHabit.name}: ${bestHabit.streak} يوم\n`;
+    }
+    text += `\n💪 أنا بحسن من نفسي يوم عن يوم!\n#Mahdawi_Challenge`;
+    return text;
+}
+
 console.log('🚀 TrackSphere - تم التحميل بنجاح!');
 console.log('📊 عدد العادات:', habits.length);
 console.log('⭐ النقاط:', points);

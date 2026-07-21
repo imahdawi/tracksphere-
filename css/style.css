@@ -937,3 +937,92 @@ footer {
         font-size: 0.8rem;
     }
 }
+
+/* ================================================================
+   📊 CHART - RESPONSIVE FIX (موبايل)
+   ================================================================ */
+
+/* تحسين عرض الـ Chart على الموبايل */
+@media (max-width: 768px) {
+    .chart-wrapper {
+        padding: 12px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chart-wrapper canvas {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 200px !important;
+        max-height: 250px !important;
+    }
+
+    .chart-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .chart-header h2 {
+        font-size: 1.1rem !important;
+        text-align: center !important;
+    }
+
+    .chart-range-info {
+        font-size: 0.75rem !important;
+        text-align: center !important;
+    }
+
+    .chart-controls {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px !important;
+    }
+
+    .chart-filters {
+        gap: 4px !important;
+    }
+
+    .chart-filter-btn {
+        padding: 4px 10px !important;
+        font-size: 0.7rem !important;
+    }
+
+    .chart-nav {
+        gap: 3px !important;
+    }
+
+    .chart-nav-btn {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 0.75rem !important;
+    }
+}
+
+/* للموبايل الصغير جداً */
+@media (max-width: 480px) {
+    .chart-wrapper {
+        padding: 8px !important;
+    }
+
+    .chart-wrapper canvas {
+        min-height: 150px !important;
+        max-height: 200px !important;
+    }
+
+    .chart-header h2 {
+        font-size: 0.95rem !important;
+    }
+
+    .chart-filter-btn {
+        padding: 3px 8px !important;
+        font-size: 0.6rem !important;
+    }
+
+    .chart-nav-btn {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 0.65rem !important;
+    }
+}
