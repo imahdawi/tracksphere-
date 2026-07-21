@@ -1,5 +1,5 @@
 // ================================================================
-//  🔥 FIREBASE CONFIG
+//  🔥 FIREBASE CONFIG - tracksphere2
 // ================================================================
 
 const firebaseConfig = {
@@ -12,8 +12,10 @@ const firebaseConfig = {
     measurementId: "G-2X85TGPQX0"
 };
 
-// Initialize Firebase
+// ✅ تهيئة Firebase
 firebase.initializeApp(firebaseConfig);
+
+// ✅ جاهزية Auth و Firestore
 const auth = firebase.auth();
 const db = firebase.firestore();
 
