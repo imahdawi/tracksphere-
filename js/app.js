@@ -227,44 +227,59 @@ function generateShareHTML() {
     const completedToday = habits.filter(h => h.history.includes(today)).length;
     const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
     const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
-    const todayStr = new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
     const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
 
     let html = `
-        <div style="text-align:center;padding:30px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;max-width:600px;margin:0 auto;font-family: 'Cairo', sans-serif;">
+        <div style="
+            text-align:center;
+            padding:20px 16px;
+            background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);
+            border-radius:16px;
+            border:2px solid #6C63FF;
+            width:500px;
+            height:320px;
+            margin:0 auto;
+            font-family: 'Cairo', sans-serif;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            box-sizing:border-box;
+        ">
             <!-- Logo -->
-            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;">
-                <span style="font-size:2.8rem;">🚀</span>
-                <span style="font-size:2.2rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:2px;">
+                <span style="font-size:2rem;">🚀</span>
+                <span style="font-size:1.6rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
             </div>
-            <div style="color:#A0A0C0;font-size:1.2rem;margin-bottom:14px;">${todayStr}</div>
+            <div style="color:#A0A0C0;font-size:0.8rem;margin-bottom:6px;">${todayStr}</div>
 
-            <hr style="border-color:rgba(108,99,255,0.15);margin:12px 0;" />
+            <hr style="border-color:rgba(108,99,255,0.15);margin:6px 0;width:80%;" />
 
             <!-- Stats -->
-            <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:14px 0;">
-                <span style="background:rgba(108,99,255,0.12);padding:8px 20px;border-radius:50px;font-weight:600;font-size:1.2rem;">🔥 ${maxStreak} يوم</span>
-                <span style="background:rgba(0,200,83,0.12);padding:8px 20px;border-radius:50px;font-weight:600;font-size:1.2rem;color:#00C853;">📈 ${rate}%</span>
-                <span style="background:rgba(255,214,0,0.12);padding:8px 20px;border-radius:50px;font-weight:600;font-size:1.2rem;color:#FFD600;">⭐ ${points}</span>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:6px 0;">
+                <span style="background:rgba(108,99,255,0.12);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.9rem;">🔥 ${maxStreak} يوم</span>
+                <span style="background:rgba(0,200,83,0.12);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.9rem;color:#00C853;">📈 ${rate}%</span>
+                <span style="background:rgba(255,214,0,0.12);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.9rem;color:#FFD600;">⭐ ${points}</span>
             </div>
 
             ${bestHabit && bestHabit.streak > 0 ? `
-            <hr style="border-color:rgba(108,99,255,0.15);margin:12px 0;" />
-            <div style="font-size:1.2rem;color:#A0A0C0;">
-                🏆 أكثر عادة: <strong style="color:#fff;font-size:1.3rem;">${bestHabit.icon} ${bestHabit.name}</strong>
-                <div style="font-size:1.1rem;color:#FFD600;">${bestHabit.streak} يوم متتالي!</div>
+            <hr style="border-color:rgba(108,99,255,0.15);margin:6px 0;width:80%;" />
+            <div style="font-size:0.9rem;color:#A0A0C0;">
+                🏆 <strong style="color:#fff;">${bestHabit.icon} ${bestHabit.name}</strong>
+                <span style="color:#FFD600;font-size:0.8rem;">(${bestHabit.streak} يوم)</span>
             </div>` : ''}
 
-            <hr style="border-color:rgba(108,99,255,0.15);margin:14px 0;" />
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;width:80%;" />
 
             <!-- Message -->
-            <div style="font-size:1.4rem;color:#fff;font-weight:500;margin:10px 0;">
+            <div style="font-size:1.1rem;color:#fff;font-weight:500;margin:4px 0;">
                 💪 أنا بحسن من نفسي يوم عن يوم!
             </div>
 
             <!-- Hashtags -->
-            <div style="font-size:0.9rem;color:#6C63FF;margin-top:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;">
-                <span>#Mahdawi_Challenge</span>
+            <div style="font-size:0.7rem;color:#6C63FF;margin-top:6px;">
+                #Mahdawi_Challenge
             </div>
         </div>
     `;
@@ -317,34 +332,33 @@ function generateShareImage() {
         return;
     }
 
-    // 👇 نخلي العنصر كبير ومفهوم
-    preview.style.display = 'block';
-    preview.style.width = '600px'; // حجم مناسب
-    preview.style.maxWidth = '100%';
+    // 👇 نخلي العنصر بالحجم المناسب
+    preview.style.display = 'flex';
+    preview.style.justifyContent = 'center';
+    preview.style.alignItems = 'center';
+    preview.style.background = 'transparent';
+    preview.style.padding = '0';
     preview.style.margin = '0 auto';
-    preview.style.padding = '20px';
-    preview.style.background = '#0A0A1A';
-    preview.style.borderRadius = '20px';
-    preview.style.border = '2px solid #6C63FF';
+    preview.style.maxWidth = '500px';
+    preview.style.width = '100%';
 
     // 👇 نحط المحتوى
     preview.innerHTML = generateShareHTML();
 
-    // 👇 نأخذ الصورة بحجم كبير
+    // 👇 نأخذ الصورة
     html2canvas(preview, {
-        backgroundColor: '#0A0A1A',
-        scale: 3, // 👈 دقة عالية (زيادة الوضوح)
+        backgroundColor: null,
+        scale: 2,
         useCORS: true,
         logging: false,
-        width: 600,
-        height: 450,
+        width: 500,
+        height: 320,
         onclone: function(doc) {
             const videos = doc.querySelectorAll('video');
             videos.forEach(v => v.pause());
         }
     })
     .then(canvas => {
-        // 👇 نحولها لرابط تحميل
         const link = document.createElement('a');
         link.download = `tracksphere_${new Date().toISOString().split('T')[0]}.png`;
         link.href = canvas.toDataURL('image/png');
