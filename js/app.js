@@ -1,0 +1,568 @@
+// ================================================================
+//  🔥 FIREBASE
+// ================================================================
+
+// التأكد من أن Firebase جاهز
+if (typeof firebase === 'undefined') {
+    console.error('❌ Firebase not loaded!');
+} else {
+    console.log('✅ Firebase loaded!');
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ================================================================
+//  🔐 FIREBASE AUTH - LOGIN
+// ================================================================
+
+// ====== عناصر الـ UI ======
+const loginOverlay = document.getElementById('login-overlay');
+const loginMessage = document.getElementById('login-message');
+const googleBtn = document.getElementById('login-google');
+const githubBtn = document.getElementById('login-github');
+const logoutBtn = document.getElementById('logout-btn');
+const userInfo = document.getElementById('user-info');
+
+// ====== تسجيل دخول بجوجل ======
+googleBtn.addEventListener('click', async function() {
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        showLoginMessage('✅ مرحباً ' + user.displayName + '!', 'success');
+        setTimeout(() => {
+            loginOverlay.classList.add('hidden');
+            loadUserData(user.uid);
+            updateUserUI(user);
+        }, 500);
+    } catch (error) {
+        console.error(error);
+        showLoginMessage('⚠️ ' + error.message, 'error');
+    }
+});
+
+// ====== تسجيل دخول بجيثب ======
+githubBtn.addEventListener('click', async function() {
+    try {
+        const provider = new firebase.auth.GithubAuthProvider();
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        showLoginMessage('✅ مرحباً ' + user.displayName + '!', 'success');
+        setTimeout(() => {
+            loginOverlay.classList.add('hidden');
+            loadUserData(user.uid);
+            updateUserUI(user);
+        }, 500);
+    } catch (error) {
+        console.error(error);
+        showLoginMessage('⚠️ ' + error.message, 'error');
+    }
+});
+
+// ====== مراقبة حالة المستخدم ======
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        // مستخدم مسجل دخول
+        loginOverlay.classList.add('hidden');
+        loadUserData(user.uid);
+        updateUserUI(user);
+    } else {
+        // لا يوجد مستخدم
+        loginOverlay.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.style.display = 'none';
+    }
+});
+
+// ====== تحديث واجهة المستخدم ======
+function updateUserUI(user) {
+    if (user && user.displayName) {
+        const avatar = document.getElementById('user-avatar');
+        const name = document.getElementById('user-name');
+        if (avatar) avatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + user.displayName;
+        if (name) name.textContent = user.displayName;
+        if (logoutBtn) logoutBtn.style.display = 'flex';
+    }
+}
+
+// ====== تسجيل خروج ======
+function logout() {
+    if (confirm('⚠️ هل أنت متأكد من تسجيل الخروج؟')) {
+        auth.signOut().then(() => {
+            habits = [];
+            achievements = [];
+            renderHabits();
+            updateStats();
+            updateAchievements();
+            updateChart();
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            showToast('👋 تم تسجيل الخروج', 'info');
+        });
+    }
+}
+
+// ====== تحميل بيانات المستخدم من Firestore ======
+async function loadUserData(uid) {
+    try {
+        const doc = await db.collection('users').doc(uid).get();
+        if (doc.exists) {
+            const data = doc.data();
+            habits = data.habits || [];
+            achievements = data.achievements || [];
+            renderHabits();
+            updateStats();
+            updateAchievements();
+            updateChart();
+        } else {
+            // مستخدم جديد - نبدأ بيانات فارغة
+            habits = [];
+            achievements = [];
+            renderHabits();
+            updateStats();
+            updateAchievements();
+            updateChart();
+        }
+    } catch (error) {
+        console.error('Error loading user data:', error);
+    }
+}
+
+// ====== حفظ بيانات المستخدم في Firestore ======
+async function saveUserData(uid) {
+    try {
+        await db.collection('users').doc(uid).set({
+            habits: habits,
+            achievements: achievements,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Error saving user data:', error);
+    }
+}
+
+// ====== تعديل دالة saveData ======
+const originalSaveData = saveData;
+saveData = function() {
+    const user = auth.currentUser;
+    if (user) {
+        saveUserData(user.uid);
+    } else {
+        originalSaveData();
+    }
+};
+
+// ====== تعديل دالة loadData ======
+const originalLoadData = loadData;
+loadData = function() {
+    // دلوقتي البيانات بتتجاب من Firestore في loadUserData
+    // فالدالة دي مش محتاجة تعمل حاجة
+    console.log('📦 Data loaded from Firestore');
+};
+
+// ====== عرض رسائل تسجيل الدخول ======
+function showLoginMessage(message, type = 'info') {
+    if (loginMessage) {
+        loginMessage.textContent = message;
+        loginMessage.className = 'login-message ' + type;
+    }
+}
+
+// ====== APP STATE ======
+let habits = [];
+let points = 0;
+let achievements = [];
+
+// ====== DOM REFS ======
+const habitsList = document.getElementById('habits-list');
+const habitInput = document.getElementById('habit-input');
+const habitCategory = document.getElementById('habit-category');
+const addBtn = document.getElementById('add-btn');
+const totalHabitsEl = document.getElementById('total-habits');
+const totalStreakEl = document.getElementById('total-streak');
+const completionRateEl = document.getElementById('completion-rate');
+const totalPointsEl = document.getElementById('total-points');
+const todayDateEl = document.getElementById('today-date');
+
+// ================================================================
+//  💾 STORAGE FUNCTIONS
+// ================================================================
+
+function saveData() {
+    const data = {
+        habits: habits,
+        achievements: achievements,
+        savedAt: new Date().toISOString()
+    };
+    localStorage.setItem('tracksphere_data', JSON.stringify(data));
+}
+
+function loadData() {
+    const raw = localStorage.getItem('tracksphere_data');
+    if (raw) {
+        try {
+            const data = JSON.parse(raw);
+            habits = data.habits || [];
+            achievements = data.achievements || [];
+        } catch (e) {
+            console.error('Error loading data:', e);
+        }
+    }
+}
+
+// ================================================================
+//  🛠️ حساب النقاط من العادات الموجودة فقط
+// ================================================================
+
+function calculatePointsFromHabits() {
+    let total = 0;
+    habits.forEach(habit => {
+        total += habit.history.length * 10;
+        if (habit.history.length >= 1) total += 5;
+        if (habit.history.length >= 7) total += 15;
+        if (habit.history.length >= 30) total += 30;
+        if (habit.streak >= 7) total += 20;
+        if (habit.streak >= 30) total += 50;
+        if (habit.streak >= 100) total += 100;
+    });
+    return total;
+}
+
+// ====== INIT ======
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    renderHabits();
+    updateStats();
+    updateAchievements();
+    updateDate();
+    setTimeout(() => {
+        if (typeof resetChartState === 'function') resetChartState();
+        initChart();
+    }, 200);
+});
+
+// ====== ADD HABIT ======
+addBtn.addEventListener('click', () => {
+    const name = habitInput.value.trim();
+    const category = habitCategory.value;
+    if (!name) return showToast('⚠️ من فضلك اكتب اسم العادة', 'error');
+    if (habits.some(h => h.name.toLowerCase() === name.toLowerCase())) return showToast('⚠️ هذه العادة موجودة بالفعل', 'warning');
+    habits.push({
+        id: Date.now(),
+        name: name,
+        category: category,
+        icon: getCategoryIcon(category),
+        completed: false,
+        streak: 0,
+        bestStreak: 0,
+        history: [],
+        createdAt: new Date().toISOString()
+    });
+    habitInput.value = '';
+    saveData();
+    renderHabits();
+    updateStats();
+    updateAchievements();
+    updateChart();
+    showToast(`✅ تم إضافة "${name}" بنجاح`, 'success');
+});
+
+// ====== TOGGLE HABIT ======
+function toggleHabit(id) {
+    const habit = habits.find(h => h.id === id);
+    if (!habit) return showToast('⚠️ العادة غير موجودة', 'error');
+    const today = new Date().toDateString();
+    if (habit.history.includes(today)) return showToast(`⚠️ "${habit.name}" مسجلة اليوم بالفعل!`, 'warning');
+    habit.history.push(today);
+    habit.completed = true;
+    calculateStreak(habit);
+    saveData();
+    renderHabits();
+    updateStats();
+    updateAchievements();
+    updateChart();
+    showToast(`✅ تم تسجيل "${habit.name}" بنجاح`, 'success');
+}
+
+// ====== CALCULATE STREAK ======
+function calculateStreak(habit) {
+    if (habit.history.length === 0) { habit.streak = 0; return; }
+    let streak = 0;
+    let currentDate = new Date();
+    for (let i = 0; i < habit.history.length; i++) {
+        const dateStr = new Date(currentDate).toDateString();
+        if (habit.history.includes(dateStr)) {
+            streak++;
+            currentDate.setDate(currentDate.getDate() - 1);
+        } else break;
+    }
+    habit.streak = streak;
+    if (streak > habit.bestStreak) habit.bestStreak = streak;
+}
+
+// ====== DELETE HABIT ======
+function deleteHabit(id) {
+    const habit = habits.find(h => h.id === id);
+    if (!habit) return;
+    if (!confirm(`🗑️ هل أنت متأكد من حذف عادة "${habit.name}"؟`)) return;
+    habits = habits.filter(h => h.id !== id);
+    saveData();
+    renderHabits();
+    updateStats();
+    updateAchievements();
+    updateChart();
+    showToast(`🗑️ تم حذف "${habit.name}"`, 'info');
+}
+
+// ====== RENDER HABITS ======
+function renderHabits() {
+    if (habits.length === 0) {
+        habitsList.innerHTML = `<div class="empty-state"><i class="fas fa-plus-circle"></i><p>لا توجد عادات بعد! أضف عادة جديدة 👆</p></div>`;
+        return;
+    }
+    habitsList.innerHTML = habits.map(habit => {
+        const today = new Date().toDateString();
+        const isDoneToday = habit.history.includes(today);
+        return `
+        <div class="habit-item ${isDoneToday ? 'completed' : ''}">
+            <div class="habit-info">
+                <span class="habit-icon">${habit.icon}</span>
+                <div>
+                    <span class="habit-name">${habit.name}</span>
+                    <span class="habit-category">${habit.category}</span>
+                </div>
+            </div>
+            <div class="habit-streak"><i class="fas fa-fire"></i> ${habit.streak || 0} يوم</div>
+            <div class="habit-actions">
+                <button class="btn-check" onclick="toggleHabit(${habit.id})" ${isDoneToday ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}><i class="fas fa-check"></i></button>
+                <button class="btn-delete" onclick="deleteHabit(${habit.id})"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ====== UPDATE STATS ======
+function updateStats() {
+    const total = habits.length;
+    const today = new Date().toDateString();
+    const completedToday = habits.filter(h => h.history.includes(today)).length;
+    const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
+    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    points = calculatePointsFromHabits();
+    totalHabitsEl.textContent = total;
+    totalStreakEl.textContent = maxStreak;
+    completionRateEl.textContent = rate + '%';
+    totalPointsEl.textContent = points;
+    saveData();
+}
+
+// ====== UPDATE DATE ======
+function updateDate() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    todayDateEl.textContent = now.toLocaleDateString('ar-EG', options);
+}
+
+// ====== CATEGORY ICON ======
+function getCategoryIcon(category) {
+    const icons = { 'صحية': '💪', 'تعليمية': '📚', 'روحية': '🕌', 'رياضية': '⚽', 'أخرى': '✨' };
+    return icons[category] || '✨';
+}
+
+// ====== RESET ======
+document.getElementById('reset-btn').addEventListener('click', () => {
+    if (confirm('⚠️ هل أنت متأكد من حذف جميع البيانات؟')) {
+        if (confirm('⚠️ هل أنت متأكد مرة أخرى؟')) {
+            habits = [];
+            points = 0;
+            achievements = [];
+            localStorage.clear();
+            location.reload();
+        }
+    }
+});
+
+// ====== THEME TOGGLE ======
+document.getElementById('theme-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('light');
+    const icon = document.querySelector('#theme-toggle i');
+    if (document.body.classList.contains('light')) {
+        icon.className = 'fas fa-sun';
+        localStorage.setItem('theme', 'light');
+    } else {
+        icon.className = 'fas fa-moon';
+        localStorage.setItem('theme', 'dark');
+    }
+});
+
+if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    document.querySelector('#theme-toggle i').className = 'fas fa-sun';
+}
+
+// ================================================================
+//  📤 SHARE PROGRESS
+// ================================================================
+
+function generateShareText() {
+    const total = habits.length;
+    const today = new Date().toDateString();
+    const completedToday = habits.filter(h => h.history.includes(today)).length;
+    const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
+    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    const todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
+    const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
+    let text = `🚀 يوم ${todayStr}\n🔥 ${maxStreak} يوم متتالي\n📈 ${rate}% إنجاز\n⭐ ${points} نقطة\n`;
+    if (bestHabit && bestHabit.streak > 0) text += `🏆 ${bestHabit.icon} ${bestHabit.name}: ${bestHabit.streak} يوم\n`;
+    text += `\n💪 أنا بحسن من نفسي يوم عن يوم!\n#Mahdawi_Challenge`;
+    return text;
+}
+
+function generateShareHTML() {
+    const total = habits.length;
+    const today = new Date().toDateString();
+    const completedToday = habits.filter(h => h.history.includes(today)).length;
+    const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
+    const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    const todayStr = new Date().toLocaleDateString('ar-EG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
+    let html = `
+        <div style="text-align:center;padding:24px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;max-width:450px;margin:0 auto;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+                <span style="font-size:2rem;">🚀</span>
+                <span style="font-size:1.6rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
+            </div>
+            <div style="color:#A0A0C0;font-size:0.8rem;margin-bottom:10px;">${todayStr}</div>
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
+            <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:10px 0;">
+                <span style="background:rgba(108,99,255,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;">🔥 ${maxStreak} يوم</span>
+                <span style="background:rgba(0,200,83,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;color:#00C853;">📈 ${rate}%</span>
+                <span style="background:rgba(255,214,0,0.12);padding:5px 14px;border-radius:50px;font-weight:600;font-size:0.85rem;color:#FFD600;">⭐ ${points}</span>
+            </div>
+            ${bestHabit && bestHabit.streak > 0 ? `
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
+            <div style="font-size:0.9rem;color:#A0A0C0;">
+                🏆 أكثر عادة: <strong style="color:#fff;">${bestHabit.icon} ${bestHabit.name}</strong>
+                <div style="font-size:0.8rem;color:#FFD600;">${bestHabit.streak} يوم متتالي!</div>
+            </div>` : ''}
+            <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;" />
+            <div style="font-size:1rem;color:#fff;font-weight:500;margin:6px 0;">💪 أنا بحسن من نفسي يوم عن يوم!</div>
+            <div style="font-size:0.65rem;color:#6C63FF;margin-top:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">
+                <span>#Mahdawi_Challenge</span>
+            </div>
+        </div>
+    `;
+    return html;
+}
+
+function shareProgress(platform) {
+    switch (platform) {
+        case 'whatsapp':
+            generateAndSendWhatsApp();
+            break;
+        case 'instagram':
+            generateShareImage();
+            showToast('📸 تم تحميل الصورة! شاركها في ستوري إنستجرام', 'success');
+            break;
+        case 'tiktok':
+            generateShareImage();
+            showToast('📸 تم تحميل الصورة! ارفعها كفيديو على تيك توك', 'success');
+            break;
+        case 'image':
+            generateShareImage();
+            break;
+    }
+}
+
+function generateAndSendWhatsApp() {
+    const preview = document.getElementById('share-preview');
+    if (!preview) return showToast('⚠️ عنصر المعاينة غير موجود', 'error');
+    preview.style.display = 'block';
+    preview.innerHTML = generateShareHTML();
+    if (typeof html2canvas !== 'undefined') {
+        html2canvas(preview, {
+            backgroundColor: '#0A0A1A',
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            width: 500,
+            height: 380
+        }).then(canvas => {
+            const imageData = canvas.toDataURL('image/png');
+            const caption = `🚀 يوم جديد، إنجاز جديد!\n💪 أنا بحسن من نفسي يوم عن يوم!\n#Mahdawi_Challenge`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(caption)}`, '_blank');
+            const link = document.createElement('a');
+            link.download = `tracksphere_${new Date().toISOString().split('T')[0]}.png`;
+            link.href = imageData;
+            link.click();
+            showToast('📸 تم تحميل الصورة! أرفقها في رسالة واتساب', 'success');
+        }).catch(() => showToast('⚠️ حدث خطأ، حاول استخدام زر "صورة"', 'error'));
+    } else {
+        showToast('⏳ جاري تحميل المكتبة...', 'info');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.onload = () => generateAndSendWhatsApp();
+        document.head.appendChild(script);
+    }
+}
+
+function generateShareImage() {
+    const preview = document.getElementById('share-preview');
+    if (!preview) return showToast('⚠️ عنصر المعاينة غير موجود', 'error');
+    preview.style.display = 'block';
+    preview.innerHTML = generateShareHTML();
+    if (typeof html2canvas !== 'undefined') {
+        html2canvas(preview, {
+            backgroundColor: '#0A0A1A',
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            width: 500,
+            height: 380
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `tracksphere_${new Date().toISOString().split('T')[0]}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('📸 تم تحميل الصورة!', 'success');
+        }).catch(() => showToast('⚠️ حدث خطأ', 'error'));
+    } else {
+        showToast('⏳ جاري تحميل المكتبة...', 'info');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.onload = () => generateShareImage();
+        document.head.appendChild(script);
+    }
+}
+
+// ================================================================
+//  🔔 TOAST
+// ================================================================
+
+function showToast(message, type = 'info') {
+    const oldToast = document.querySelector('.toast-notification');
+    if (oldToast) oldToast.remove();
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.textContent = message;
+    const colors = { success: '#00C853', error: '#FF1744', warning: '#FFD600', info: '#2979FF' };
+    toast.style.cssText = `
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        background: var(--card); backdrop-filter: blur(10px);
+        border: 2px solid ${colors[type] || '#6C63FF'}; color: var(--text);
+        padding: 14px 28px; border-radius: 12px; font-size: 1rem;
+        z-index: 9999; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        animation: slideUp 0.4s ease; max-width: 90%; text-align: center;
+        font-family: 'Cairo', sans-serif;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(-20px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+console.log('🚀 TrackSphere - تم التحميل بنجاح!');
+console.log('📊 عدد العادات:', habits.length);
+console.log('⭐ النقاط:', points);
