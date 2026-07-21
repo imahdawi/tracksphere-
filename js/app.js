@@ -233,7 +233,7 @@ function generateShareHTML() {
     let html = `
         <div style="
             text-align:center;
-            padding:20px 16px;
+            padding:20px;
             background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);
             border-radius:16px;
             border:2px solid #6C63FF;
@@ -248,37 +248,39 @@ function generateShareHTML() {
             box-sizing:border-box;
         ">
             <!-- Logo -->
-            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:2px;">
-                <span style="font-size:2rem;">🚀</span>
-                <span style="font-size:1.6rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;">
+                <span style="font-size:2.2rem;">🚀</span>
+                <span style="font-size:1.8rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
             </div>
-            <div style="color:#A0A0C0;font-size:0.8rem;margin-bottom:6px;">${todayStr}</div>
+            
+            <!-- التاريخ -->
+            <div style="color:#A0A0C0;font-size:1rem;margin-bottom:8px;">${todayStr}</div>
 
-            <hr style="border-color:rgba(108,99,255,0.15);margin:6px 0;width:80%;" />
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;width:70%;" />
 
             <!-- Stats -->
-            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:6px 0;">
-                <span style="background:rgba(108,99,255,0.12);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.9rem;">🔥 ${maxStreak} يوم</span>
-                <span style="background:rgba(0,200,83,0.12);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.9rem;color:#00C853;">📈 ${rate}%</span>
-                <span style="background:rgba(255,214,0,0.12);padding:4px 14px;border-radius:50px;font-weight:600;font-size:0.9rem;color:#FFD600;">⭐ ${points}</span>
+            <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:8px 0;">
+                <span style="background:rgba(108,99,255,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1rem;">🔥 ${maxStreak} يوم</span>
+                <span style="background:rgba(0,200,83,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1rem;color:#00C853;">📈 ${rate}%</span>
+                <span style="background:rgba(255,214,0,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1rem;color:#FFD600;">⭐ ${points}</span>
             </div>
 
             ${bestHabit && bestHabit.streak > 0 ? `
-            <hr style="border-color:rgba(108,99,255,0.15);margin:6px 0;width:80%;" />
-            <div style="font-size:0.9rem;color:#A0A0C0;">
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;width:70%;" />
+            <div style="font-size:1rem;color:#A0A0C0;">
                 🏆 <strong style="color:#fff;">${bestHabit.icon} ${bestHabit.name}</strong>
-                <span style="color:#FFD600;font-size:0.8rem;">(${bestHabit.streak} يوم)</span>
+                <span style="color:#FFD600;font-size:0.9rem;">(${bestHabit.streak} يوم)</span>
             </div>` : ''}
 
-            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;width:80%;" />
+            <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;width:70%;" />
 
-            <!-- Message -->
-            <div style="font-size:1.1rem;color:#fff;font-weight:500;margin:4px 0;">
+            <!-- الرسالة -->
+            <div style="font-size:1.2rem;color:#fff;font-weight:500;">
                 💪 أنا بحسن من نفسي يوم عن يوم!
             </div>
 
-            <!-- Hashtags -->
-            <div style="font-size:0.7rem;color:#6C63FF;margin-top:6px;">
+            <!-- الهاشتاج -->
+            <div style="font-size:0.8rem;color:#6C63FF;margin-top:8px;">
                 #Mahdawi_Challenge
             </div>
         </div>
@@ -332,15 +334,16 @@ function generateShareImage() {
         return;
     }
 
-    // 👇 نخلي العنصر بالحجم المناسب
+    // 👇 العنصر يتمركز في النص
     preview.style.display = 'flex';
     preview.style.justifyContent = 'center';
     preview.style.alignItems = 'center';
     preview.style.background = 'transparent';
     preview.style.padding = '0';
     preview.style.margin = '0 auto';
-    preview.style.maxWidth = '500px';
-    preview.style.width = '100%';
+    preview.style.width = '500px';
+    preview.style.height = '320px';
+    preview.style.maxWidth = '100%';
 
     // 👇 نحط المحتوى
     preview.innerHTML = generateShareHTML();
@@ -348,7 +351,7 @@ function generateShareImage() {
     // 👇 نأخذ الصورة
     html2canvas(preview, {
         backgroundColor: null,
-        scale: 2,
+        scale: 2.5,
         useCORS: true,
         logging: false,
         width: 500,
