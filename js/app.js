@@ -223,17 +223,11 @@ function generateShareText() {
 
 function generateShareHTML() {
     const total = habits.length;
-    const today = new Date();
-    const todayStr = today.toLocaleDateString('ar-EG', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    });
-
-    // حساب الإحصائيات من العادات الموجودة
-    const completedToday = habits.filter(h => h.history.includes(today.toDateString())).length;
+    const today = new Date().toDateString();
+    const completedToday = habits.filter(h => h.history.includes(today)).length;
     const rate = total === 0 ? 0 : Math.round((completedToday / total) * 100);
     const maxStreak = habits.reduce((max, h) => Math.max(max, h.streak || 0), 0);
+    const todayStr = new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const bestHabit = habits.length > 0 ? [...habits].sort((a, b) => (b.streak || 0) - (a.streak || 0))[0] : null;
 
     let html = `
@@ -242,52 +236,44 @@ function generateShareHTML() {
             padding:24px 20px;
             background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);
             border-radius:20px;
-            border:3px solid #6C63FF;
-            width:520px;
-            height:340px;
+            border:2px solid #6C63FF;
+            width:500px;
             margin:0 auto;
-            font-family: 'Cairo', 'Segoe UI', sans-serif;
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-            align-items:center;
+            font-family: 'Cairo', sans-serif;
             box-sizing:border-box;
-            box-shadow: 0 8px 40px rgba(108,99,255,0.15);
         ">
             <!-- Logo -->
-            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:2px;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px;">
                 <span style="font-size:2.4rem;">🚀</span>
-                <span style="font-size:2rem;font-weight:800;color:#6C63FF;letter-spacing:1px;">TrackSphere</span>
+                <span style="font-size:2rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
             </div>
-            
-            <!-- التاريخ -->
-            <div style="color:#A0A0C0;font-size:1rem;font-weight:400;margin-bottom:6px;">📅 ${todayStr}</div>
+            <div style="color:#A0A0C0;font-size:1rem;margin-bottom:10px;">${todayStr}</div>
 
-            <hr style="border-color:rgba(108,99,255,0.12);margin:6px 0;width:75%;" />
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
 
             <!-- Stats -->
-            <div style="display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:6px 0;">
-                <span style="background:rgba(108,99,255,0.1);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1rem;color:#fff;">🔥 ${maxStreak} يوم</span>
-                <span style="background:rgba(0,200,83,0.1);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1rem;color:#00C853;">📈 ${rate}%</span>
-                <span style="background:rgba(255,214,0,0.1);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1rem;color:#FFD600;">⭐ ${points}</span>
+            <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:10px 0;">
+                <span style="background:rgba(108,99,255,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;">🔥 ${maxStreak} يوم</span>
+                <span style="background:rgba(0,200,83,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#00C853;">📈 ${rate}%</span>
+                <span style="background:rgba(255,214,0,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#FFD600;">⭐ ${points}</span>
             </div>
 
             ${bestHabit && bestHabit.streak > 0 ? `
-            <hr style="border-color:rgba(108,99,255,0.12);margin:6px 0;width:75%;" />
+            <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
             <div style="font-size:1rem;color:#A0A0C0;">
-                🏆 <strong style="color:#fff;font-size:1.1rem;">${bestHabit.icon} ${bestHabit.name}</strong>
+                🏆 أكثر عادة: <strong style="color:#fff;">${bestHabit.icon} ${bestHabit.name}</strong>
                 <span style="color:#FFD600;font-size:0.9rem;">(${bestHabit.streak} يوم)</span>
             </div>` : ''}
 
-            <hr style="border-color:rgba(108,99,255,0.12);margin:8px 0;width:75%;" />
+            <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;" />
 
-            <!-- الرسالة -->
-            <div style="font-size:1.2rem;color:#fff;font-weight:500;margin:2px 0;">
+            <!-- Message -->
+            <div style="font-size:1.2rem;color:#fff;font-weight:500;margin:6px 0;">
                 💪 أنا بحسن من نفسي يوم عن يوم!
             </div>
 
-            <!-- الهاشتاج -->
-            <div style="font-size:0.85rem;color:#6C63FF;margin-top:6px;font-weight:600;letter-spacing:0.5px;">
+            <!-- Hashtags -->
+            <div style="font-size:0.8rem;color:#6C63FF;margin-top:8px;">
                 #Mahdawi_Challenge
             </div>
         </div>
@@ -341,7 +327,7 @@ function generateShareImage() {
         return;
     }
 
-    // 👇 العنصر يتمركز في النص
+    // 👇 العنصر يكون في النص
     preview.style.display = 'flex';
     preview.style.justifyContent = 'center';
     preview.style.alignItems = 'center';
@@ -349,20 +335,16 @@ function generateShareImage() {
     preview.style.padding = '0';
     preview.style.margin = '0 auto';
     preview.style.width = '500px';
-    preview.style.height = '320px';
     preview.style.maxWidth = '100%';
 
-    // 👇 نحط المحتوى
     preview.innerHTML = generateShareHTML();
 
-    // 👇 نأخذ الصورة
     html2canvas(preview, {
         backgroundColor: null,
         scale: 2.5,
         useCORS: true,
         logging: false,
         width: 500,
-        height: 320,
         onclone: function(doc) {
             const videos = doc.querySelectorAll('video');
             videos.forEach(v => v.pause());
