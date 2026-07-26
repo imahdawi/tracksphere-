@@ -1,19 +1,5 @@
 // ====== HABITS CORE FUNCTIONS ======
 
-// تصدير الدوال للاستخدام في app.js
-window.habitsModule = {
-    addHabit,
-    toggleHabit,
-    deleteHabit,
-    getHabitsByCategory,
-    getTodayHabits,
-    getWeeklyStats,
-    getMonthlyStats,
-    exportData,
-    importData,
-    resetAllData
-};
-
 // ====== ADD HABIT ======
 function addHabit(name, category) {
     if (!name || name.trim() === '') {
@@ -21,13 +7,12 @@ function addHabit(name, category) {
         return null;
     }
 
-    // منع التكرار
-    if (habits.some(h => h.name.toLowerCase() === name.trim().toLowerCase())) {
+    if (habits.some(function(h) { return h.name.toLowerCase() === name.trim().toLowerCase(); })) {
         showToast('⚠️ هذه العادة موجودة بالفعل', 'warning');
         return null;
     }
 
-    const newHabit = {
+    var newHabit = {
         id: Date.now() + Math.random() * 1000,
         name: name.trim(),
         category: category || 'أخرى',
@@ -47,43 +32,38 @@ function addHabit(name, category) {
     updateAchievements();
     updateChart();
     
-    showToast(`✅ تم إضافة "${newHabit.name}" بنجاح`, 'success');
+    showToast('✅ تم إضافة "' + newHabit.name + '" بنجاح', 'success');
     return newHabit;
 }
 
 // ====== TOGGLE HABIT ======
 function toggleHabit(id) {
-    const habit = habits.find(h => h.id === id);
+    var habit = habits.find(function(h) { return h.id === id; });
     if (!habit) {
         showToast('⚠️ العادة غير موجودة', 'error');
         return;
     }
 
-    const today = new Date().toDateString();
-    const todayIndex = habit.history.indexOf(today);
+    var today = new Date().toDateString();
+    var todayIndex = habit.history.indexOf(today);
 
-    // إذا كانت مسجلة اليوم، نلغي التسجيل
     if (todayIndex !== -1) {
         habit.history.splice(todayIndex, 1);
-        habit.completed = habit.history.some(d => d === today);
-        showToast(`↩️ تم إلغاء تسجيل "${habit.name}"`, 'info');
+        habit.completed = habit.history.some(function(d) { return d === today; });
+        showToast('↩️ تم إلغاء تسجيل "' + habit.name + '"', 'info');
     } else {
-        // تسجيل العادة
         habit.history.push(today);
         habit.completed = true;
-        
-        // حساب السلسلة (Streak)
         calculateStreak(habit);
         
-        // إضافة نقاط
-        let earnedPoints = 10;
+        var earnedPoints = 10;
         if (habit.streak >= 7) earnedPoints += 20;
         if (habit.streak >= 30) earnedPoints += 50;
         if (habit.streak >= 100) earnedPoints += 100;
         
         points += earnedPoints;
         
-        showToast(`✅ تم تسجيل "${habit.name}" +${earnedPoints} نقطة`, 'success');
+        showToast('✅ تم تسجيل "' + habit.name + '" +' + earnedPoints + ' نقطة', 'success');
     }
 
     saveData();
@@ -95,19 +75,19 @@ function toggleHabit(id) {
 
 // ====== DELETE HABIT ======
 function deleteHabit(id) {
-    const habit = habits.find(h => h.id === id);
+    var habit = habits.find(function(h) { return h.id === id; });
     if (!habit) return;
     
-    if (!confirm(`هل أنت متأكد من حذف عادة "${habit.name}"؟`)) return;
+    if (!confirm('هل أنت متأكد من حذف عادة "' + habit.name + '"؟')) return;
     
-    habits = habits.filter(h => h.id !== id);
+    habits = habits.filter(function(h) { return h.id !== id; });
     saveData();
     renderHabits();
     updateStats();
     updateAchievements();
     updateChart();
     
-    showToast(`🗑️ تم حذف "${habit.name}"`, 'info');
+    showToast('🗑️ تم حذف "' + habit.name + '"', 'info');
 }
 
 // ====== CALCULATE STREAK ======
@@ -117,12 +97,11 @@ function calculateStreak(habit) {
         return;
     }
 
-    let streak = 0;
-    let currentDate = new Date();
+    var streak = 0;
+    var currentDate = new Date();
     
-    // نبدأ من اليوم ونرجع للوراء
-    for (let i = 0; i < habit.history.length; i++) {
-        const dateStr = new Date(currentDate).toDateString();
+    for (var i = 0; i < habit.history.length; i++) {
+        var dateStr = new Date(currentDate).toDateString();
         if (habit.history.includes(dateStr)) {
             streak++;
             currentDate.setDate(currentDate.getDate() - 1);
@@ -139,30 +118,32 @@ function calculateStreak(habit) {
 
 // ====== GET HABITS BY CATEGORY ======
 function getHabitsByCategory(category) {
-    return habits.filter(h => h.category === category);
+    return habits.filter(function(h) { return h.category === category; });
 }
 
 // ====== GET TODAY'S HABITS ======
 function getTodayHabits() {
-    const today = new Date().toDateString();
-    return habits.map(h => ({
-        ...h,
-        doneToday: h.history.includes(today)
-    }));
+    var today = new Date().toDateString();
+    return habits.map(function(h) {
+        return {
+            ...h,
+            doneToday: h.history.includes(today)
+        };
+    });
 }
 
 // ====== GET WEEKLY STATS ======
 function getWeeklyStats() {
-    const days = [];
-    const today = new Date();
+    var days = [];
+    var today = new Date();
     
-    for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
+    for (var i = 6; i >= 0; i--) {
+        var date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toDateString();
+        var dateStr = date.toDateString();
         
-        let completed = 0;
-        habits.forEach(habit => {
+        var completed = 0;
+        habits.forEach(function(habit) {
             if (habit.history.includes(dateStr)) completed++;
         });
         
@@ -178,17 +159,17 @@ function getWeeklyStats() {
 
 // ====== GET MONTHLY STATS ======
 function getMonthlyStats() {
-    const month = new Date().getMonth();
-    const year = new Date().getFullYear();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    var month = new Date().getMonth();
+    var year = new Date().getFullYear();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
     
-    const stats = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-        const dateStr = date.toDateString();
+    var stats = [];
+    for (var day = 1; day <= daysInMonth; day++) {
+        var date = new Date(year, month, day);
+        var dateStr = date.toDateString();
         
-        let completed = 0;
-        habits.forEach(habit => {
+        var completed = 0;
+        habits.forEach(function(habit) {
             if (habit.history.includes(dateStr)) completed++;
         });
         
@@ -204,7 +185,7 @@ function getMonthlyStats() {
 
 // ====== EXPORT DATA ======
 function exportData() {
-    const data = {
+    var data = {
         habits: habits,
         points: points,
         achievements: achievements,
@@ -212,13 +193,13 @@ function exportData() {
         version: '1.0'
     };
     
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+    var json = JSON.stringify(data, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
     
-    const a = document.createElement('a');
+    var a = document.createElement('a');
     a.href = url;
-    a.download = `tracksphere_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = 'tracksphere_backup_' + new Date().toISOString().split('T')[0] + '.json';
     a.click();
     URL.revokeObjectURL(url);
     
@@ -227,10 +208,10 @@ function exportData() {
 
 // ====== IMPORT DATA ======
 function importData(file) {
-    const reader = new FileReader();
+    var reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const data = JSON.parse(e.target.result);
+            var data = JSON.parse(e.target.result);
             if (!data.habits || !Array.isArray(data.habits)) {
                 showToast('⚠️ ملف غير صالح', 'error');
                 return;
@@ -277,7 +258,7 @@ function resetAllData() {
 
 // ====== HELPER: CATEGORY ICON ======
 function getCategoryIcon(category) {
-    const icons = {
+    var icons = {
         'صحية': '💪',
         'تعليمية': '📚',
         'روحية': '🕌',
@@ -289,7 +270,7 @@ function getCategoryIcon(category) {
 
 // ====== HELPER: CATEGORY COLOR ======
 function getCategoryColor(category) {
-    const colors = {
+    var colors = {
         'صحية': '#00C853',
         'تعليمية': '#2979FF',
         'روحية': '#FF6D00',
@@ -299,64 +280,4 @@ function getCategoryColor(category) {
     return colors[category] || '#6C63FF';
 }
 
-// ====== TOAST NOTIFICATION ======
-function showToast(message, type = 'info') {
-    // إزالة أي toast قديم
-    const oldToast = document.querySelector('.toast-notification');
-    if (oldToast) oldToast.remove();
-    
-    const toast = document.createElement('div');
-    toast.className = `toast-notification toast-${type}`;
-    toast.innerHTML = message;
-    
-    const colors = {
-        success: '#00C853',
-        error: '#FF1744',
-        warning: '#FFD600',
-        info: '#2979FF'
-    };
-    
-    toast.style.cssText = `
-        position: fixed;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--card);
-        backdrop-filter: blur(10px);
-        border: 2px solid ${colors[type] || '#6C63FF'};
-        color: var(--text);
-        padding: 14px 28px;
-        border-radius: 12px;
-        font-size: 1rem;
-        z-index: 9999;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-        animation: slideUp 0.4s ease;
-        max-width: 90%;
-        text-align: center;
-    `;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(-50%) translateY(-20px)';
-        toast.style.transition = 'all 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-// إضافة الـ Toast style
-const toastStyle = document.createElement('style');
-toastStyle.textContent = `
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-    }
-`;
-document.head.appendChild(toastStyle);
+console.log('📋 Habits module loaded!');

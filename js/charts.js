@@ -1,105 +1,198 @@
-// ====== CHART ======
-let chartInstance = null;
-let currentFilter = 'weekly';
-let currentOffset = 0;
-let chartInitialized = false;
+// ================================================================
+//  📊 CHART MODULE - النسخة النهائية
+// ================================================================
 
-// ====== INIT CHART ======
+var chartInstance = null;
+var currentFilter = 'weekly';
+var currentOffset = 0;
+var chartInitialized = false;
+
+// ================================================================
+//  🛠️ SAFE TRANSLATION
+// ================================================================
+
+function safeTranslate(key) {
+    try {
+        if (typeof t === 'function') {
+            return t(key);
+        }
+    } catch (e) {}
+
+    var fallbacks = {
+        'chart_completed': 'Completed',
+        'chart_week': 'Week',
+        'day_sunday': 'Sunday',
+        'day_monday': 'Monday',
+        'day_tuesday': 'Tuesday',
+        'day_wednesday': 'Wednesday',
+        'day_thursday': 'Thursday',
+        'day_friday': 'Friday',
+        'day_saturday': 'Saturday',
+        'day_today': '(Today)',
+        'month_january': 'January',
+        'month_february': 'February',
+        'month_march': 'March',
+        'month_april': 'April',
+        'month_may': 'May',
+        'month_june': 'June',
+        'month_july': 'July',
+        'month_august': 'August',
+        'month_september': 'September',
+        'month_october': 'October',
+        'month_november': 'November',
+        'month_december': 'December'
+    };
+    return fallbacks[key] || key;
+}
+
+// ================================================================
+//  📅 GET DAY NAMES
+// ================================================================
+
+function getDayNames() {
+    return [
+        safeTranslate('day_sunday'),
+        safeTranslate('day_monday'),
+        safeTranslate('day_tuesday'),
+        safeTranslate('day_wednesday'),
+        safeTranslate('day_thursday'),
+        safeTranslate('day_friday'),
+        safeTranslate('day_saturday')
+    ];
+}
+
+// ================================================================
+//  📅 GET MONTH NAMES
+// ================================================================
+
+function getMonthNames() {
+    return [
+        safeTranslate('month_january'),
+        safeTranslate('month_february'),
+        safeTranslate('month_march'),
+        safeTranslate('month_april'),
+        safeTranslate('month_may'),
+        safeTranslate('month_june'),
+        safeTranslate('month_july'),
+        safeTranslate('month_august'),
+        safeTranslate('month_september'),
+        safeTranslate('month_october'),
+        safeTranslate('month_november'),
+        safeTranslate('month_december')
+    ];
+}
+
+// ================================================================
+//  🎨 GET TEXT COLOR
+// ================================================================
+
+function getTextColor() {
+    try {
+        var color = getComputedStyle(document.body).getPropertyValue('--text-secondary');
+        return color.trim() || '#A0A0C0';
+    } catch (e) {
+        return '#A0A0C0';
+    }
+}
+
+// ================================================================
+//  📊 INIT CHART - ⭐ الإصلاح النهائي
+// ================================================================
+
 function initChart() {
-    console.log('📊 initChart called, chartInitialized:', chartInitialized);
-
-    if (chartInitialized) {
-        console.log('📊 Chart already initialized, skipping...');
+    var canvas = document.getElementById('weekly-chart');
+    if (!canvas) {
+        console.error('📊 Canvas not found!');
+        setTimeout(function() {
+            if (!chartInitialized) {
+                console.log('📊 Retrying initChart...');
+                initChart();
+            }
+        }, 500);
         return;
     }
 
-    const ctx = document.getElementById('weekly-chart');
-    if (!ctx) {
-        console.error('📊 Canvas element not found!');
-        return;
+    // ⭐ مهم: إذا كان chartInstance موجود، امسحه أولاً
+    if (chartInstance) {
+        try {
+            chartInstance.destroy();
+        } catch (e) {
+            console.warn('📊 Could not destroy chart:', e);
+        }
+        chartInstance = null;
+        chartInitialized = false;
     }
 
-    const data = getChartData();
+    try {
+        var data = getChartData();
 
-    chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: 'العادات المنجزة',
-                data: data.values,
-                backgroundColor: 'rgba(108, 99, 255, 0.6)',
-                borderColor: '#6C63FF',
-                borderWidth: 2,
-                borderRadius: 8,
-                hoverBackgroundColor: 'rgba(108, 99, 255, 0.8)'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            // 👈 إضافة resize delay عشان يشتغل على الموبايل
-            resizeDelay: 200,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: getTextColor(),
-                        font: { size: window.innerWidth < 480 ? 10 : 12 }
+        chartInstance = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: safeTranslate('chart_completed'),
+                    data: data.values,
+                    backgroundColor: 'rgba(108, 99, 255, 0.6)',
+                    borderColor: '#6C63FF',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: 'rgba(108, 99, 255, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: getTextColor(),
+                            font: { size: 12 }
+                        }
                     }
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.parsed.y} عادة مكتملة`;
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: getTextColor(),
+                            stepSize: 1
                         },
-                        title: function(context) {
-                            if (currentFilter === 'weekly') {
-                                return context[0].label;
-                            } else {
-                                const day = context[0].label.split(' ')[0];
-                                return `اليوم ${day}`;
-                            }
+                        grid: {
+                            color: 'rgba(108, 99, 255, 0.05)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: getTextColor(),
+                            maxRotation: 45
+                        },
+                        grid: {
+                            display: false
                         }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        color: getTextColor(),
-                        stepSize: 1,
-                        font: { size: window.innerWidth < 480 ? 9 : 11 }
-                    },
-                    grid: {
-                        color: 'rgba(108, 99, 255, 0.05)'
-                    }
-                },
-                x: {
-                    ticks: {
-                        color: getTextColor(),
-                        font: { size: window.innerWidth < 480 ? 9 : 11 },
-                        maxRotation: window.innerWidth < 480 ? 45 : 0
-                    },
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            animation: {
-                duration: 500,
-                easing: 'easeInOutQuart'
             }
-        }
-    });
+        });
 
-    chartInitialized = true;
-    updateChartInfo(data.range);
-    updateNavButtons();
-    console.log('📊 Chart initialized successfully!');
+        chartInitialized = true;
+        updateChartInfo(data.range);
+        updateNavButtons();
+        console.log('📊 Chart initialized successfully!');
+    } catch (error) {
+        console.error('📊 Init error:', error);
+        chartInstance = null;
+        chartInitialized = false;
+        setTimeout(function() {
+            initChart();
+        }, 500);
+    }
 }
 
-// ====== GET CHART DATA ======
+// ================================================================
+//  📊 GET CHART DATA
+// ================================================================
+
 function getChartData() {
     if (currentFilter === 'weekly') {
         return getWeekData(currentOffset);
@@ -108,204 +201,301 @@ function getChartData() {
     }
 }
 
-// ====== GET WEEK DATA ======
-function getWeekData(offset = 0) {
-    const days = [];
-    const today = new Date();
-    const currentDay = today.getDay();
-    
-    const startDate = new Date(today);
+// ================================================================
+//  📅 GET WEEK DATA
+// ================================================================
+
+function getWeekData(offset) {
+    if (offset === undefined) offset = 0;
+
+    var today = new Date();
+    var currentDay = today.getDay();
+
+    var startDate = new Date(today);
     startDate.setDate(today.getDate() - currentDay + (offset * 7));
-    
-    const dayNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-    const weekRange = getWeekRange(startDate);
-    
-    for (let i = 0; i < 7; i++) {
-        const date = new Date(startDate);
+
+    var endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+
+    var dayNames = getDayNames();
+    var todayLabel = safeTranslate('day_today');
+    var days = [];
+
+    for (var i = 0; i < 7; i++) {
+        var date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
-        const dateStr = date.toDateString();
-        
-        let count = 0;
-        habits.forEach(habit => {
-            if (habit.history.includes(dateStr)) count++;
-        });
-        
-        const isToday = dateStr === today.toDateString();
+        var dateStr = date.toDateString();
+
+        var count = 0;
+        if (habits && Array.isArray(habits)) {
+            for (var j = 0; j < habits.length; j++) {
+                if (habits[j].history && habits[j].history.indexOf(dateStr) !== -1) {
+                    count++;
+                }
+            }
+        }
+
+        var isToday = dateStr === today.toDateString();
+        var label = isToday ? dayNames[i] + ' ' + todayLabel : dayNames[i];
+
         days.push({
-            label: dayNames[i],
+            label: label,
             date: dateStr,
             count: count,
-            isToday: isToday,
-            fullDate: date
+            isToday: isToday
         });
     }
-    
+
+    var monthNames = getMonthNames();
+    var startMonth = monthNames[startDate.getMonth()];
+    var endMonth = monthNames[endDate.getMonth()];
+    var weekLabel = safeTranslate('chart_week');
+
+    var range = weekLabel + ': ' + startDate.getDate() + ' ' + startMonth + ' - ' + endDate.getDate() + ' ' + endMonth + ' ' + endDate.getFullYear();
+
     return {
-        labels: days.map(d => d.isToday ? `${d.label} (اليوم)` : d.label),
-        values: days.map(d => d.count),
-        range: weekRange,
-        days: days
+        labels: days.map(function(d) { return d.label; }),
+        values: days.map(function(d) { return d.count; }),
+        range: range
     };
 }
 
-// ====== GET MONTH DATA ======
-function getMonthData(offset = 0) {
-    const today = new Date();
-    const targetMonth = new Date(today.getFullYear(), today.getMonth() + offset, 1);
-    const year = targetMonth.getFullYear();
-    const month = targetMonth.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const monthName = targetMonth.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
-    
-    const days = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-        const dateStr = date.toDateString();
-        
-        let count = 0;
-        habits.forEach(habit => {
-            if (habit.history.includes(dateStr)) count++;
-        });
-        
-        const isToday = dateStr === today.toDateString();
-        const dayName = date.toLocaleDateString('ar-EG', { weekday: 'short' });
-        
+// ================================================================
+//  📅 GET MONTH DATA
+// ================================================================
+
+function getMonthData(offset) {
+    if (offset === undefined) offset = 0;
+
+    var today = new Date();
+    var targetMonth = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+    var year = targetMonth.getFullYear();
+    var month = targetMonth.getMonth();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    var monthNames = getMonthNames();
+    var monthName = monthNames[month];
+    var monthLabel = monthName + ' ' + year;
+
+    var dayNames = getDayNames();
+    var todayLabel = safeTranslate('day_today');
+    var days = [];
+
+    for (var day = 1; day <= daysInMonth; day++) {
+        var date = new Date(year, month, day);
+        var dateStr = date.toDateString();
+
+        var count = 0;
+        if (habits && Array.isArray(habits)) {
+            for (var j = 0; j < habits.length; j++) {
+                if (habits[j].history && habits[j].history.indexOf(dateStr) !== -1) {
+                    count++;
+                }
+            }
+        }
+
+        var isToday = dateStr === today.toDateString();
+        var dayName = dayNames[date.getDay()];
+
         days.push({
-            label: day,
+            label: isToday ? day + ' ' + todayLabel : day,
             date: dateStr,
             count: count,
             isToday: isToday,
-            dayName: dayName,
-            fullDate: date
+            dayName: dayName
         });
     }
-    
-    let labels = [];
-    let values = [];
-    
-    if (daysInMonth > 20) {
-        for (let i = 0; i < days.length; i += 3) {
-            const group = days.slice(i, i + 3);
-            const total = group.reduce((sum, d) => sum + d.count, 0);
-            const label = `${group[0].label}-${group[group.length-1].label} (${group[0].dayName})`;
+
+    var labels = [];
+    var values = [];
+    var groupSize = daysInMonth > 25 ? 3 : 1;
+
+    if (groupSize > 1) {
+        for (var i = 0; i < days.length; i += groupSize) {
+            var group = days.slice(i, Math.min(i + groupSize, days.length));
+            var total = 0;
+            for (var k = 0; k < group.length; k++) {
+                total += group[k].count;
+            }
+            var first = group[0];
+            var last = group[group.length - 1];
+
+            var label = String(first.label);
+            if (group.length > 1 && first.label !== last.label) {
+                label = first.label + '-' + last.label;
+            }
+            if (first.dayName) {
+                label = label + ' (' + first.dayName.substring(0, 3) + ')';
+            }
             labels.push(label);
             values.push(total);
         }
     } else {
-        labels = days.map(d => `${d.label} (${d.dayName})`);
-        values = days.map(d => d.count);
+        for (var i = 0; i < days.length; i++) {
+            labels.push(days[i].label + ' (' + days[i].dayName.substring(0, 3) + ')');
+            values.push(days[i].count);
+        }
     }
-    
+
     return {
         labels: labels,
         values: values,
-        range: monthName,
-        days: days
+        range: monthLabel
     };
 }
 
-// ====== GET WEEK RANGE ======
-function getWeekRange(startDate) {
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6);
-    
-    const start = startDate.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
-    const end = endDate.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
-    
-    return `${start} - ${end}`;
-}
+// ================================================================
+//  🔄 UPDATE CHART
+// ================================================================
 
-// ====== UPDATE CHART ======
 function updateChart() {
     if (!chartInstance) {
-        console.log('📊 Chart instance not found, calling initChart...');
+        console.log('📊 No chart instance, initializing...');
         initChart();
         return;
     }
-    
-    const data = getChartData();
-    
-    chartInstance.data.labels = data.labels;
-    chartInstance.data.datasets[0].data = data.values;
-    chartInstance.update();
-    
-    updateChartInfo(data.range);
-}
 
-// ====== UPDATE CHART INFO ======
-function updateChartInfo(range = null) {
-    const infoEl = document.getElementById('chart-range-info');
-    if (!infoEl) return;
-    
-    if (!range) {
-        const data = getChartData();
-        range = data.range;
+    try {
+        var data = getChartData();
+        chartInstance.data.labels = data.labels;
+        chartInstance.data.datasets[0].data = data.values;
+        chartInstance.update();
+        updateChartInfo(data.range);
+        updateNavButtons();
+        console.log('📊 Chart updated!');
+    } catch (error) {
+        console.error('📊 Update error:', error);
+        chartInstance = null;
+        initChart();
     }
-    
-    const prefix = currentFilter === 'weekly' ? '📅 الأسبوع' : '📆 الشهر';
-    infoEl.textContent = `${prefix}: ${range}`;
 }
 
-// ====== NAVIGATION ======
+// ================================================================
+//  📝 UPDATE CHART INFO
+// ================================================================
+
+function updateChartInfo(range) {
+    var el = document.getElementById('chart-range-info');
+    if (el && range) {
+        el.textContent = range;
+    }
+}
+
+// ================================================================
+//  ⬅️➡️ NAVIGATE CHART
+// ================================================================
+
 function navigateChart(direction) {
+    console.log('📊 Navigate:', direction, 'currentOffset:', currentOffset);
     currentOffset += direction;
     updateChart();
 }
 
-// ====== RESET TO TODAY ======
+// ================================================================
+//  🔄 RESET TO TODAY
+// ================================================================
+
 function resetChartToToday() {
+    console.log('📊 Reset to today');
     currentOffset = 0;
     updateChart();
 }
 
-// ====== SWITCH FILTER ======
+// ================================================================
+//  🔄 SWITCH FILTER
+// ================================================================
+
 function switchChartFilter(filter) {
+    console.log('📊 Switch filter to:', filter);
+
     currentFilter = filter;
     currentOffset = 0;
-    updateChart();
-    
-    document.querySelectorAll('.chart-filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.filter === filter) {
-            btn.classList.add('active');
+
+    var btns = document.querySelectorAll('.chart-filter-btn');
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.remove('active');
+        if (btns[i].dataset.filter === filter) {
+            btns[i].classList.add('active');
         }
-    });
-    
-    updateNavButtons();
+    }
+
+    if (!chartInstance) {
+        initChart();
+        return;
+    }
+
+    updateChart();
 }
 
-// ====== UPDATE NAV BUTTONS ======
+// ================================================================
+//  🔘 UPDATE NAV BUTTONS
+// ================================================================
+
 function updateNavButtons() {
-    const todayBtn = document.querySelector('.chart-nav-today');
+    var todayBtn = document.querySelector('.chart-nav-today');
     if (todayBtn) {
         todayBtn.style.display = currentOffset === 0 ? 'none' : 'inline-flex';
     }
 }
 
-// ====== GET TEXT COLOR ======
-function getTextColor() {
-    return getComputedStyle(document.body).getPropertyValue('--text-secondary') || '#A0A0C0';
-}
+// ================================================================
+//  💾 EXPORT CHART
+// ================================================================
 
-// ====== EXPORT CHART ======
 function exportChartAsImage() {
-    const canvas = document.getElementById('weekly-chart');
+    var canvas = document.getElementById('weekly-chart');
     if (!canvas) {
-        showToast('⚠️ الرسم البياني غير موجود', 'error');
+        if (typeof showToast === 'function') {
+            showToast('⚠️ الرسم البياني غير موجود', 'error');
+        }
         return;
     }
-    const link = document.createElement('a');
-    const date = new Date().toISOString().split('T')[0];
-    link.download = `tracksphere_chart_${date}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    showToast('📸 تم تصدير الرسم البياني', 'success');
+
+    try {
+        var link = document.createElement('a');
+        var date = new Date().toISOString().split('T')[0];
+        link.download = 'tracksphere_chart_' + date + '.png';
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        if (typeof showToast === 'function') {
+            showToast('📸 تم تصدير الرسم البياني', 'success');
+        }
+    } catch (e) {
+        console.error('📊 Export error:', e);
+        if (typeof showToast === 'function') {
+            showToast('⚠️ حدث خطأ في التصدير', 'error');
+        }
+    }
 }
 
-// ====== RESET CHART STATE (للـ Refresh) ======
+// ================================================================
+//  🔄 RESET CHART STATE
+// ================================================================
+
 function resetChartState() {
+    if (chartInstance) {
+        try {
+            chartInstance.destroy();
+        } catch (e) {}
+        chartInstance = null;
+    }
     chartInitialized = false;
-    chartInstance = null;
+    console.log('📊 Chart state reset');
 }
 
-console.log('📊 Charts module loaded');
+// ================================================================
+//  🌐 EXPOSE GLOBALS
+// ================================================================
+
+window.initChart = initChart;
+window.updateChart = updateChart;
+window.navigateChart = navigateChart;
+window.resetChartToToday = resetChartToToday;
+window.switchChartFilter = switchChartFilter;
+window.exportChartAsImage = exportChartAsImage;
+window.resetChartState = resetChartState;
+
+console.log('📊 Charts module loaded!');

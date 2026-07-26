@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="TrackSphere - Smart Habit Tracker">
+    <meta name="theme-color" content="#6C63FF">
+    <meta name="color-scheme" content="dark light">
+    <meta name="author" content="Mahdi Ahmed">
+    <meta name="keywords" content="Habits, Habit Tracker, Productivity, TrackSphere">
+    
     <title>TrackSphere - تتبع عاداتك</title>
 
     <!-- Chart.js -->
@@ -20,65 +26,62 @@
 </head>
 <body>
 
-    <!-- ====== SPLASH SCREEN (شاشة البداية) ====== -->
-<div id="splash-screen" class="splash-screen">
-    <div class="splash-content">
-    <div class="splash-logo">
-        <i class="fas fa-chart-line"></i>
-        <span>Track<span>Sphere</span></span>
-    </div>
-    <p class="splash-subtitle" data-i18n="splash_title">تتبع عاداتك اليومية</p>
-
-    <div class="splash-buttons">
-        <button id="splash-start" class="splash-btn primary" data-i18n="splash_start">
-            <i class="fas fa-play"></i> ابدأ
-        </button>
-        <button id="splash-settings" class="splash-btn secondary" data-i18n="splash_settings">
-            <i class="fas fa-cog"></i> الإعدادات
-        </button>
-        <button id="splash-info" class="splash-btn secondary" data-i18n="splash_info">
-            <i class="fas fa-info-circle"></i> معلومات
-        </button>
-        <button id="splash-about" class="splash-btn secondary" data-i18n="splash_about">
-            <i class="fas fa-user"></i> عن المطور
-        </button>
-    </div>
-
-    <div class="splash-footer">
-        <span>v1.1</span>
-        <span>#Mahdawi_Challenge</span>
-    </div>
- </div>
-</div>
-
-<!-- ====== SPLASH OVERLAY (مودال info/settings) ====== -->
-<div id="splash-modal" class="splash-modal" style="display:none;">
-    <div class="splash-modal-content">
-        <button class="splash-modal-close" onclick="closeSplashModal()">✕</button>
-        <div id="splash-modal-body">
-            <!-- المحتوى هيتغير حسب الزر -->
-        </div>
-    </div>
-</div>
-
-    <!-- ====== HEADER ====== -->
-<header>
-    <div class="container">
-        <div class="header-content">
-            <div class="logo">
+    <!-- ====== SPLASH SCREEN ====== -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">
                 <i class="fas fa-chart-line"></i>
                 <span>Track<span>Sphere</span></span>
             </div>
-            <div class="header-controls">
-                <!-- 👇 زر الإعدادات الجديد -->
-                <button id="header-settings" class="btn-settings" title="الإعدادات">
-                    <i class="fas fa-cog"></i>
+            <p class="splash-subtitle" data-i18n="splash_title">تتبع عاداتك اليومية</p>
+            <div class="splash-buttons">
+                <button id="splash-start" class="splash-btn primary" data-i18n="splash_start">
+                    <i class="fas fa-play"></i> ابدأ
                 </button>
-                <button id="reset-btn" class="btn-danger" title="حذف جميع البيانات"><i class="fas fa-trash"></i></button>
+                <button id="splash-settings" class="splash-btn secondary" data-i18n="splash_settings">
+                    <i class="fas fa-cog"></i> الإعدادات
+                </button>
+                <button id="splash-info" class="splash-btn secondary" data-i18n="splash_info">
+                    <i class="fas fa-info-circle"></i> معلومات
+                </button>
+                <button id="splash-about" class="splash-btn secondary" data-i18n="splash_about">
+                    <i class="fas fa-user"></i> عن المطور
+                </button>
+            </div>
+            <div class="splash-footer">
+                <span>v1.0.0</span>
+                <span>#Mahdawi_Challenge</span>
             </div>
         </div>
     </div>
-</header>
+
+    <!-- ====== SPLASH MODAL ====== -->
+    <div id="splash-modal" class="splash-modal" style="display:none;">
+        <div class="splash-modal-content">
+            <button class="splash-modal-close" onclick="closeSplashModal()">✕</button>
+            <div id="splash-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- ====== HEADER ====== -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Track<span>Sphere</span></span>
+                </div>
+                <div class="header-controls">
+                    <button id="header-settings" class="btn-settings" title="الإعدادات">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button id="reset-btn" class="btn-danger" title="حذف جميع البيانات">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <!-- ====== STATS ====== -->
     <section id="stats">
@@ -113,16 +116,16 @@
         <div class="container">
             <div class="add-habit-wrapper">
                 <div class="add-habit-input-group">
-                    <input type="text" id="habit-input" placeholder="أضف عادة جديدة..." />
+                    <input type="text" id="habit-input" placeholder="أضف عادة جديدة..." data-i18n-placeholder="add_placeholder" />
                     <select id="habit-category">
-                        <option value="صحية">💪 صحية</option>
-                        <option value="تعليمية">📚 تعليمية</option>
-                        <option value="روحية">🕌 روحية</option>
-                        <option value="رياضية">⚽ رياضية</option>
-                        <option value="أخرى">✨ أخرى</option>
-                    </select>
+                 <option value="healthy" data-i18n="add_category_healthy">💪 صحية</option>
+                 <option value="educational" data-i18n="add_category_educational">📚 تعليمية</option>
+                 <option value="spiritual" data-i18n="add_category_spiritual">🕌 روحية</option>
+                 <option value="sports" data-i18n="add_category_sports">⚽ رياضية</option>
+                 <option value="other" data-i18n="add_category_other">✨ أخرى</option>
+                 </select>
                 </div>
-                <button id="add-btn"><i class="fas fa-plus"></i> أضف</button>
+                <button id="add-btn" data-i18n="add_button"><i class="fas fa-plus"></i> أضف</button>
             </div>
         </div>
     </section>
@@ -131,7 +134,7 @@
     <section id="habits">
         <div class="container">
             <div class="habits-header">
-                <h2><i class="fas fa-list"></i> عاداتي اليومية</h2>
+                <h2 data-i18n="habits_title"><i class="fas fa-list"></i> عاداتي اليومية</h2>
                 <span id="today-date"></span>
             </div>
             <div id="habits-list" class="habits-grid"></div>
@@ -143,16 +146,16 @@
         <div class="container">
             <div class="chart-header">
                 <div>
-                    <h2><i class="fas fa-chart-bar"></i> تقدمك</h2>
-                    <span id="chart-range-info" class="chart-range-info">📅 الأسبوع: ...</span>
+                    <h2 data-i18n="chart_title"><i class="fas fa-chart-bar"></i> تقدمك</h2>
+                    <span id="chart-range-info" class="chart-range-info">📅 ...</span>
                 </div>
                 <div class="chart-controls">
                     <div class="chart-filters">
                         <button class="chart-filter-btn active" data-filter="weekly" onclick="switchChartFilter('weekly')">
-                            <i class="fas fa-calendar-week"></i> أسبوعي
+                            <i class="fas fa-calendar-week"></i> <span data-i18n="chart_weekly">أسبوعي</span>
                         </button>
                         <button class="chart-filter-btn" data-filter="monthly" onclick="switchChartFilter('monthly')">
-                            <i class="fas fa-calendar-alt"></i> شهري
+                            <i class="fas fa-calendar-alt"></i> <span data-i18n="chart_monthly">شهري</span>
                         </button>
                     </div>
                     <div class="chart-nav">
@@ -172,7 +175,7 @@
     <!-- ====== ACHIEVEMENTS ====== -->
     <section id="achievements">
         <div class="container">
-            <h2><i class="fas fa-trophy"></i> الإنجازات</h2>
+            <h2 data-i18n="achievements_title"><i class="fas fa-trophy"></i> الإنجازات</h2>
             <div id="achievements-list" class="achievements-grid"></div>
         </div>
     </section>
@@ -181,13 +184,13 @@
     <section id="share-section">
         <div class="container">
             <div class="share-wrapper">
-                <h3><i class="fas fa-share-alt"></i> شارك تقدمك</h3>
-                <p>شارك إنجازاتك مع أصحابك وحفزهم!</p>
+                <h3 data-i18n="share_title"><i class="fas fa-share-alt"></i> شارك تقدمك</h3>
+                <p data-i18n="share_desc">شارك إنجازاتك مع أصحابك وحفزهم!</p>
                 <div class="share-buttons">
-                    <button onclick="shareProgress('whatsapp')" class="share-btn whatsapp"><i class="fab fa-whatsapp"></i> واتساب</button>
-                    <button onclick="shareProgress('instagram')" class="share-btn instagram"><i class="fab fa-instagram"></i> ستوري</button>
-                    <button onclick="shareProgress('tiktok')" class="share-btn tiktok"><i class="fab fa-tiktok"></i> تيك توك</button>
-                    <button onclick="shareProgress('image')" class="share-btn image"><i class="fas fa-image"></i> صورة</button>
+                    <button onclick="shareProgress('whatsapp')" class="share-btn whatsapp" data-i18n="share_whatsapp"><i class="fab fa-whatsapp"></i> واتساب</button>
+                    <button onclick="shareProgress('instagram')" class="share-btn instagram" data-i18n="share_instagram"><i class="fab fa-instagram"></i> ستوري</button>
+                    <button onclick="shareProgress('tiktok')" class="share-btn tiktok" data-i18n="share_tiktok"><i class="fab fa-tiktok"></i> تيك توك</button>
+                    <button onclick="shareProgress('image')" class="share-btn image" data-i18n="share_image"><i class="fas fa-image"></i> صورة</button>
                 </div>
                 <div id="share-preview" class="share-preview" style="display:none;"></div>
             </div>
@@ -197,7 +200,7 @@
     <!-- ====== FOOTER ====== -->
     <footer>
         <div class="container">
-            <p>© 2026 TrackSphere - Made with ❤️ by Mahdi Ahmed</p>
+            <p data-i18n="footer_made">Made with ❤️ by Mahdi Ahmed</p>
             <p style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px;">
                 <span style="color:#6C63FF;">#Mahdawi_Challenge</span>
             </p>
@@ -206,12 +209,12 @@
 
     <!-- ====== SCRIPTS ====== -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="js/language.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/habits.js"></script>
-    <script src="js/charts.js"></script>
-    <script src="js/gamification.js"></script>
-    <script src="js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/language.js"></script>   <!-- 1️⃣ اللغة أولاً -->
+    <script src="js/storage.js"></script>    <!-- 2️⃣ التخزين -->
+    <script src="js/gamification.js"></script> <!-- 3️⃣ الإنجازات -->
+    <script src="js/charts.js"></script>     <!-- 4️⃣ الرسم البياني -->
+    <script src="js/app.js"></script>        <!-- 5️⃣ التطبيق -->
 
 </body>
 </html>
