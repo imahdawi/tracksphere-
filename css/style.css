@@ -1300,47 +1300,1281 @@ body.light .settings-option-btn {
 }
 
 /* ================================================================
-   📱 MOBILE SMALL - أقل من 360px
+   💻 DEFAULT - للكمبيوتر والتابلت (أكبر من 768px)
    ================================================================ */
 
-@media (max-width: 360px) {
-    .stat-grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 6px !important;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6C63FF;
+    --primary-dark: #5A52D5;
+    --success: #00C853;
+    --danger: #FF1744;
+    --warning: #FFD600;
+    --bg: #0A0A1A;
+    --card: rgba(255, 255, 255, 0.05);
+    --border: rgba(108, 99, 255, 0.2);
+    --text: #FFFFFF;
+    --text-secondary: #A0A0C0;
+    --radius: 16px;
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    --font: 'Cairo', sans-serif;
+}
+
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    padding: 0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ====== HEADER ====== */
+header {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10, 10, 26, 0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo i {
+    color: var(--primary);
+    font-size: 1.6rem;
+}
+
+.header-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header-controls button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ====== STATS ====== */
+#stats {
+    margin: 30px 0 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: var(--shadow);
+}
+
+.stat-card i {
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    display: block;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* ====== ADD HABIT ====== */
+#add-habit {
+    margin: 10px 0 30px;
+}
+
+.add-habit-wrapper {
+    display: flex;
+    gap: 15px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+}
+
+.add-habit-input-group {
+    flex: 1;
+    display: flex;
+    gap: 12px;
+}
+
+#habit-input {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    font-size: 1rem;
+    font-family: var(--font);
+    outline: none;
+    transition: all 0.3s;
+}
+
+#habit-input:focus {
+    border-color: var(--primary);
+}
+
+#habit-category {
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: var(--font);
+    outline: none;
+    cursor: pointer;
+}
+
+#add-btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+#add-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.02);
+}
+
+/* ====== HABITS LIST ====== */
+.habits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.habits-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.habits-header h2 i {
+    color: var(--primary);
+    margin-left: 10px;
+}
+
+#today-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.habits-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.habit-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    transition: all 0.3s;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.habit-item:hover {
+    border-color: var(--primary);
+}
+
+.habit-item .habit-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.habit-item .habit-info .habit-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    text-align: center;
+}
+
+.habit-item .habit-info .habit-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.habit-item .habit-info .habit-category {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--border);
+    padding: 2px 12px;
+    border-radius: 50px;
+    white-space: nowrap;
+}
+
+.habit-item .habit-streak {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--warning);
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 60px;
+}
+
+.habit-item .habit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.habit-item .habit-actions button {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.habit-item .habit-actions .btn-check {
+    background: var(--success);
+    color: #fff;
+}
+
+.habit-item .habit-actions .btn-delete {
+    background: var(--danger);
+    color: #fff;
+}
+
+/* ====== CHART ====== */
+#chart-section {
+    margin: 40px 0 30px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.chart-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.chart-header h2 i {
+    color: var(--primary);
+    margin-left: 10px;
+}
+
+.chart-range-info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 2px;
+}
+
+.chart-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.chart-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.chart-filter-btn {
+    padding: 7px 16px;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.8rem;
+    font-family: var(--font);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.chart-filter-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.chart-nav {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.chart-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-nav-btn.chart-nav-today {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.chart-wrapper {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 25px;
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+.chart-wrapper canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 300px;
+}
+
+/* ====== ACHIEVEMENTS ====== */
+#achievements {
+    margin: 30px 0 20px;
+}
+
+#achievements h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+#achievements h2 i {
+    color: var(--warning);
+    margin-left: 10px;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.achievement-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 12px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.achievement-item.unlocked {
+    border-color: var(--warning);
+    background: rgba(255, 214, 0, 0.06);
+}
+
+.achievement-item i {
+    font-size: 2rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.achievement-item.unlocked i {
+    color: var(--warning);
+}
+
+.achievement-item span {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.achievement-item small {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* ====== SHARE ====== */
+#share-section {
+    margin: 30px 0 20px;
+}
+
+.share-wrapper {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 25px 30px;
+    text-align: center;
+}
+
+.share-wrapper h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.share-wrapper h3 i {
+    color: var(--primary);
+    margin-left: 10px;
+}
+
+.share-wrapper p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+}
+
+.share-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.share-btn {
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: none;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.share-btn:hover {
+    transform: scale(1.05);
+}
+
+.share-btn.whatsapp {
+    background: #25D366;
+    color: #fff;
+}
+
+.share-btn.instagram {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #fff;
+}
+
+.share-btn.tiktok {
+    background: linear-gradient(45deg, #25F4EE, #FE2C55, #000);
+    color: #fff;
+}
+
+.share-btn.image {
+    background: #FF6D00;
+    color: #fff;
+}
+
+/* ====== FOOTER ====== */
+footer {
+    padding: 25px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 30px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* ================================================================
+   📱 MEDIA QUERY - للموبايل (أقل من 768px)
+   ================================================================ */
+
+@media (max-width: 768px) {
+    /* ====== الهيدر ====== */
+    header {
+        padding: 8px 0;
+    }
+
+    .logo {
+        font-size: 1.1rem;
+    }
+
+    .logo i {
+        font-size: 1.2rem;
+    }
+
+    .header-controls button {
+        width: 34px;
+        height: 34px;
+        font-size: 0.9rem;
+    }
+
+    /* ====== الإحصائيات ====== */
+    #stats {
+        margin: 10px 0;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
     }
 
     .stat-card {
-        padding: 8px 6px !important;
+        padding: 10px 8px;
+        border-radius: 10px;
+    }
+
+    .stat-card i {
+        font-size: 1.1rem;
+        margin-bottom: 2px;
     }
 
     .stat-number {
-        font-size: 1rem !important;
+        font-size: 1.3rem;
     }
 
     .stat-label {
-        font-size: 0.55rem !important;
+        font-size: 0.6rem;
+    }
+
+    /* ====== إضافة عادة ====== */
+    .add-habit-wrapper {
+        flex-direction: column;
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .add-habit-input-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #habit-input {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+
+    #habit-category {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    #add-btn {
+        padding: 10px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ====== قائمة العادات ====== */
+    .habits-header {
+        margin-bottom: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
     }
 
     .habits-header h2 {
-        font-size: 0.9rem !important;
+        font-size: 1rem;
     }
 
     #today-date {
-        font-size: 0.7rem !important;
+        font-size: 0.7rem;
+    }
+
+    .habit-item {
+        padding: 10px 12px;
+        border-radius: 12px;
+        gap: 6px;
     }
 
     .habit-item .habit-info {
-        min-width: 100px !important;
+        min-width: 100px;
+        gap: 8px;
     }
 
-    .chart-nav-btn {
-        width: 24px !important;
-        height: 24px !important;
-        font-size: 0.6rem !important;
+    .habit-item .habit-info .habit-icon {
+        font-size: 1.1rem;
+        width: 28px;
+    }
+
+    .habit-item .habit-info .habit-name {
+        font-size: 0.85rem;
+    }
+
+    .habit-item .habit-info .habit-category {
+        font-size: 0.55rem;
+        padding: 1px 8px;
+    }
+
+    .habit-item .habit-streak {
+        font-size: 0.7rem;
+        min-width: 40px;
+    }
+
+    .habit-item .habit-actions button {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+    }
+
+    /* ====== الرسم البياني ====== */
+    #chart-section {
+        margin: 16px 0 12px;
+    }
+
+    .chart-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .chart-header h2 {
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    .chart-range-info {
+        font-size: 0.7rem;
+        text-align: center;
+    }
+
+    .chart-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .chart-filters {
+        gap: 4px;
     }
 
     .chart-filter-btn {
-        padding: 3px 6px !important;
-        font-size: 0.55rem !important;
+        padding: 4px 10px;
+        font-size: 0.6rem;
+    }
+
+    .chart-nav {
+        gap: 3px;
+    }
+
+    .chart-nav-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.65rem;
+    }
+
+    .chart-wrapper {
+        padding: 8px;
+        border-radius: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chart-wrapper canvas {
+        min-height: 160px;
+        max-height: 200px;
+    }
+
+    /* ====== الإنجازات ====== */
+    #achievements {
+        margin: 12px 0 10px;
+    }
+
+    #achievements h2 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .achievements-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .achievement-item {
+        padding: 10px 6px;
+        border-radius: 10px;
+    }
+
+    .achievement-item i {
+        font-size: 1.3rem;
+    }
+
+    .achievement-item span {
+        font-size: 0.7rem;
+    }
+
+    .achievement-item small {
+        font-size: 0.55rem;
+    }
+
+    /* ====== المشاركة ====== */
+    #share-section {
+        margin: 12px 0 10px;
+    }
+
+    .share-wrapper {
+        padding: 14px 12px;
+        border-radius: 12px;
+    }
+
+    .share-wrapper h3 {
+        font-size: 1rem;
+    }
+
+    .share-wrapper p {
+        font-size: 0.75rem;
+        margin-bottom: 10px;
+    }
+
+    .share-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .share-btn {
+        padding: 8px 10px;
+        font-size: 0.7rem;
+        border-radius: 8px;
+    }
+
+    /* ====== الفوتر ====== */
+    footer {
+        padding: 12px 0;
+        margin-top: 12px;
+    }
+
+    footer p {
+        font-size: 0.7rem;
+    }
+
+    /* ====== الحالة الفارغة ====== */
+    .empty-state {
+        padding: 30px 10px;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+    }
+
+    .empty-state p {
+        font-size: 0.85rem;
+    }
+}
+
+/* ================================================================
+   📱 MEDIA QUERY - شاشات صغيرة جداً (أقل من 400px)
+   ================================================================ */
+
+@media (max-width: 400px) {
+    .stats-grid {
+        gap: 4px;
+    }
+
+    .stat-card {
+        padding: 8px 4px;
+    }
+
+    .stat-number {
+        font-size: 1.1rem;
+    }
+
+    .stat-label {
+        font-size: 0.55rem;
+    }
+
+    .achievements-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+    }
+
+    .achievement-item {
+        padding: 8px 4px;
+    }
+
+    .share-buttons {
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+    }
+
+    .share-btn {
+        padding: 6px 8px;
+        font-size: 0.6rem;
+    }
+}
+
+/* ================================================================
+   🖥️ MEDIA QUERY - شاشات كبيرة (أكبر من 1200px)
+   ================================================================ */
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1100px;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+    }
+
+    .habits-grid {
+        gap: 14px;
+    }
+
+    .chart-wrapper {
+        padding: 30px;
+        max-width: 850px;
+    }
+}
+
+/* ================================================================
+   🌙 DARK MODE (الافتراضي)
+   ================================================================ */
+
+body:not(.light) {
+    --bg: #0A0A1A;
+    --card: rgba(255, 255, 255, 0.05);
+    --text: #FFFFFF;
+    --text-secondary: #A0A0C0;
+}
+
+/* ================================================================
+   ☀️ LIGHT MODE
+   ================================================================ */
+
+body.light {
+    --bg: #F0F2F5;
+    --card: #FFFFFF;
+    --border: rgba(108, 99, 255, 0.15);
+    --text: #1A1A2E;
+    --text-secondary: #4A4A6A;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+body.light header {
+    background: rgba(255, 255, 255, 0.92);
+}
+
+body.light .stat-card,
+body.light .habit-item,
+body.light .chart-wrapper,
+body.light .achievement-item,
+body.light .add-habit-wrapper,
+body.light .share-wrapper {
+    background: #FFFFFF;
+    box-shadow: var(--shadow);
+}
+
+body.light #habit-input,
+body.light #habit-category {
+    background: #F0F2F5;
+    color: #1A1A2E;
+}
+
+body.light .habit-item:hover {
+    border-color: var(--primary);
+}
+
+body.light .achievement-item.unlocked {
+    background: rgba(255, 214, 0, 0.08);
+}
+
+/* ================================================================
+   🔔 TOAST
+   ================================================================ */
+
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--primary);
+    color: var(--text);
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 1rem;
+    z-index: 9999;
+    box-shadow: var(--shadow);
+    animation: slideUp 0.4s ease;
+    max-width: 90%;
+    text-align: center;
+    font-family: var(--font);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ================================================================
+   🚀 SPLASH SCREEN
+   ================================================================ */
+
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: all 0.6s ease;
+}
+
+.splash-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.splash-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.splash-logo {
+    font-size: 3.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.splash-logo i {
+    color: var(--primary);
+    font-size: 3.5rem;
+}
+
+.splash-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.splash-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.splash-btn {
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: none;
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.splash-btn.primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+}
+
+.splash-btn.secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.splash-footer {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* ================================================================
+   📱 SPLASH - للموبايل
+   ================================================================ */
+
+@media (max-width: 768px) {
+    .splash-content {
+        padding: 20px;
+    }
+
+    .splash-logo {
+        font-size: 2.8rem;
+    }
+
+    .splash-logo i {
+        font-size: 2.8rem;
+    }
+
+    .splash-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+
+    .splash-btn {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+
+    .splash-footer {
+        font-size: 0.7rem;
+    }
+}
+
+/* ================================================================
+   ⚙️ SETTINGS MODAL
+   ================================================================ */
+
+.splash-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.splash-modal-content {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    max-width: 450px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalFade 0.3s ease;
+}
+
+body.light .splash-modal-content {
+    background: #FFFFFF;
+}
+
+@keyframes modalFade {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.splash-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.splash-modal-close:hover {
+    color: var(--text);
+    transform: rotate(90deg);
+}
+
+.splash-modal-body h2 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: var(--primary);
+}
+
+.splash-modal-body p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.settings-group {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    margin-bottom: 4px;
+}
+
+.settings-group:last-of-type {
+    border-bottom: none;
+}
+
+.settings-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.settings-label i {
+    color: var(--primary);
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+}
+
+.settings-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.settings-option-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.settings-option-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .splash-modal-content {
+        padding: 20px;
+        max-width: 100%;
+        margin: 10px;
+    }
+
+    .settings-option-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-width: 60px;
     }
 }
