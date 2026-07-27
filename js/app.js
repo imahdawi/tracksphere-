@@ -798,4 +798,20 @@ function showToast(messageKey, type, name) {
     }, 3000);
 }
 
+// ================================================================
+//  📱 SERVICE WORKER - PWA
+// ================================================================
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('📱 Service Worker registered successfully:', registration);
+            })
+            .catch(function(error) {
+                console.log('📱 Service Worker registration failed:', error);
+            });
+    });
+}
+
 console.log('🚀 App module loaded!');
