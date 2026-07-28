@@ -1,103 +1,58 @@
 // ================================================================
-//  🤖 AI ASSISTANT MODULE - مع Gemini API
+//  🤖 AI ASSISTANT MODULE - مع Backend Python
 // ================================================================
 
-// ✅ المفتاح يقرأ من البيئة (مش مكتوب في الكود)
-var GEMINI_API_KEY = ''; // هيتعبأ من الـ .env
+console.log('🤖 AI Assistant module loaded (with Python backend)!');
 
-// ✅ نحاول نقرأ المفتاح من ملف .env (لو شغال على Node.js)
-if (typeof process !== 'undefined' && process.env) {
-    GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-}
-
-// ✅ لو المفتاح مش موجود، نشتغل في وضع Offline
-var AI_MODE = GEMINI_API_KEY ? 'online' : 'offline';
-
-console.log('🤖 AI Mode:', AI_MODE);
-
-// ====== معرفة التطبيق ======
-var APP_CONTEXT = `
-أنت مساعد ذكي لتطبيق TrackSphere، تطبيق لتتبع العادات اليومية.
-معلومات عن التطبيق:
-- الاسم: TrackSphere
-- المطور: مهدي أحمد
-- الوظيفة: تتبع العادات اليومية، تسجيل التقدم، متابعة السلسلة (Streak)، نقاط، إنجازات، رسوم بيانية، مشاركة.
-- المميزات: إضافة عادات، تسجيل يومي، سلسلة، نقاط، إنجازات، مشاركة، إشعارات، نسخ احتياطي.
-
-المستخدم هيسألك عن حاجات في التطبيق أو حاجات عامة.
-لو السؤال عن التطبيق، جاوب بمعلومات دقيقة عن TrackSphere.
-لو السؤال عام، جاوب برد مفيد وذكي من عندك.
-خلي ردودك مختصرة ومفيدة (حد أقصى 3 جمل).
-`;
+// ====== إعدادات الاتصال ======
+var AI_SERVER_URL = 'http://localhost:5000'; // ✅ السيرفر المحلي
+// var AI_SERVER_URL = 'https://your-python-server.onrender.com'; // ✅ لو منشور
 
 // ================================================================
-//  💬 الرد باستخدام Gemini API
+//  💬 الرد باستخدام Backend Python
 // ================================================================
 
 function askAI(query) {
     if (!query || query.trim() === '') {
-        return '👋 مرحباً! أنا مساعد TrackSphere الذكي. اسألني أي حاجة!';
+        return Promise.resolve('👋 مرحباً! أنا مساعد TrackSphere. اسألني أي حاجة!');
     }
 
-    // ✅ 1. نرجع رد من API
-    return fetchGeminiResponse(query);
-}
-
-// ================================================================
-//  🌐 الاتصال بـ Gemini API
-// ================================================================
-
-function fetchGeminiResponse(query) {
-    // نجيب الرد من الـ API
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
-
-    var data = {
-        contents: [{
-            parts: [{
-                text: APP_CONTEXT + '\n\nسؤال المستخدم: ' + query + '\n\nالرد:'
-            }]
-        }],
-        generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 150,
-            topP: 0.9
-        }
-    };
-
-    return fetch(url, {
+    // ✅ نطلب من الـ Python Backend
+    return fetch(AI_SERVER_URL + '/api/ask', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify({ query: query })
     })
     .then(function(response) {
         if (!response.ok) {
-            throw new Error('API error: ' + response.status);
+            throw new Error('Server error: ' + response.status);
         }
         return response.json();
     })
     .then(function(data) {
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            var text = data.candidates[0].content.parts[0].text;
-            return text;
+        if (data.response) {
+            return data.response;
+        } else if (data.error) {
+            return '⚠️ ' + data.error;
         } else {
-            return '⚠️ آسف، حصل خطأ. جرب تسأل بشكل مختلف.';
+            return '⚠️ حصل خطأ، حاول مرة أخرى.';
         }
     })
     .catch(function(error) {
-        console.error('AI Error:', error);
-        // لو فشل الـ API، نرجع رد من المعرفة المحلية
+        console.error('🤖 AI Error:', error);
+        // ✅ لو السيرفر مش شغال، نرجع رد Offline
         return fallbackResponse(query);
     });
 }
 
 // ================================================================
-//  📚 الرد الاحتياطي (لو الـ API وقع)
+//  📚 الرد الاحتياطي (لو السيرفر وقع)
 // ================================================================
 
 function fallbackResponse(query) {
-    var lowerQuery = query.toLowerCase();
+    var lowerQuery = query.toLowerCase().trim();
 
     var fallbacks = {
         'اضيف عادة': 'اكتب اسم العادة في حقل الإضافة، اختار التصنيف، واضغط "أضف".',
@@ -106,7 +61,15 @@ function fallbackResponse(query) {
         'النقاط': 'النقاط مكافآت بتحصل عليها عند تسجيل العادات.',
         'الإنجازات': 'جوائز بتحصل عليها عند تحقيق أهداف معينة.',
         'شارك': 'اضغط على زر مشاركة واختار الطريقة المناسبة.',
-        'نسخ احتياطي': 'اضغط على زر "تصدير البيانات" في قسم المشاركة.'
+        'نسخ احتياطي': 'اضغط على زر "تصدير البيانات" في قسم المشاركة.',
+        'مين مهدي': 'مهدي أحمد هو مطور Front-End ومصمم TrackSphere.',
+        'ايه هو TrackSphere': 'TrackSphere هو تطبيق لتتبع العادات اليومية.',
+        'السلام عليكم': 'وعليكم السلام ورحمة الله وبركاته! 🌙',
+        'صباح الخير': 'صباح النور! ☀️',
+        'مساء الخير': 'مساء الخير! 🌙',
+        'شكرا': 'العفو! 😊',
+        'hi': 'Hello! 👋 How can I help you?',
+        'hello': 'Hello! 👋 Ask me anything about TrackSphere!'
     };
 
     for (var key in fallbacks) {
@@ -115,11 +78,51 @@ function fallbackResponse(query) {
         }
     }
 
-    return '🤔 سؤال جميل! أنا حالياً في وضع عدم الاتصال. جرب تسأل عن: إضافة عادة، تسجيل، السلسلة، النقاط، أو الإنجازات.';
+    return '🔌 السيرفر غير متوصل. جرب تسأل عن: إضافة عادة، تسجيل، السلسلة، النقاط، أو الإنجازات.';
 }
 
 // ================================================================
-//  🖥️ واجهة المحادثة (نفس الكود السابق)
+//  📊 تحليل العادات (ميزة إضافية)
+// ================================================================
+
+function analyzeHabits() {
+    if (typeof habits === 'undefined' || habits.length === 0) {
+        showToast('⚠️ لا توجد عادات لتحليلها', 'warning');
+        return;
+    }
+
+    showToast('⏳ جاري تحليل عاداتك...', 'info');
+
+    var habitsData = habits.map(function(h) {
+        return {
+            name: h.name,
+            category: h.category,
+            history: h.history,
+            streak: h.streak || 0
+        };
+    });
+
+    fetch(AI_SERVER_URL + '/api/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ habits: habitsData })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.analysis) {
+            showToast('📊 ' + data.analysis, 'info');
+        }
+    })
+    .catch(function(error) {
+        console.error('Analysis error:', error);
+        showToast('⚠️ فشل تحليل العادات', 'error');
+    });
+}
+
+// ================================================================
+//  🖥️ واجهة المحادثة
 // ================================================================
 
 function createAIChat() {
@@ -143,7 +146,7 @@ function createAIChat() {
         " id="ai-chat-box">
             <div style="
                 padding: 12px 16px;
-                background: var(--primary);
+                background: #6C63FF;
                 color: #fff;
                 display: flex;
                 justify-content: space-between;
@@ -198,7 +201,7 @@ function createAIChat() {
                     padding: 8px 16px;
                     border: none;
                     border-radius: 8px;
-                    background: var(--primary);
+                    background: #6C63FF;
                     color: #fff;
                     font-weight: 600;
                     cursor: pointer;
@@ -214,7 +217,7 @@ function createAIChat() {
             height: 56px;
             border-radius: 50%;
             border: none;
-            background: var(--primary);
+            background: #6C63FF;
             color: #fff;
             font-size: 1.8rem;
             cursor: pointer;
@@ -234,23 +237,15 @@ function createAIChat() {
     container.innerHTML = chatHTML;
     document.body.appendChild(container);
 
+    // ستايلات إضافية
     var style = document.createElement('style');
     style.textContent = `
-        #ai-chat-box {
-            animation: slideUp 0.3s ease;
-        }
-        #ai-chat-messages::-webkit-scrollbar {
-            width: 4px;
-        }
-        #ai-chat-messages::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-        #ai-chat-messages::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
+        #ai-chat-box { animation: slideUp 0.3s ease; }
+        #ai-chat-messages::-webkit-scrollbar { width: 4px; }
+        #ai-chat-messages::-webkit-scrollbar-track { background: var(--bg); }
+        #ai-chat-messages::-webkit-scrollbar-thumb { background: #6C63FF; border-radius: 10px; }
         .ai-message-user {
-            background: var(--primary);
+            background: #6C63FF;
             color: #fff;
             padding: 8px 14px;
             border-radius: 12px 12px 0 12px;
@@ -291,26 +286,27 @@ function createAIChat() {
     document.head.appendChild(style);
 }
 
-// ====== تبديل المحادثة ======
+// ================================================================
+//  🎮 التحكم في المحادثة
+// ================================================================
+
 function toggleAIChat() {
     var box = document.getElementById('ai-chat-box');
     if (box) {
-        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
-        if (box.style.display === 'flex') {
-            document.getElementById('ai-chat-input').focus();
+        var isOpen = box.style.display === 'flex';
+        box.style.display = isOpen ? 'none' : 'flex';
+        if (!isOpen) {
+            var input = document.getElementById('ai-chat-input');
+            if (input) setTimeout(function() { input.focus(); }, 100);
         }
     }
 }
 
-// ====== إغلاق المحادثة ======
 function closeAIChat() {
     var box = document.getElementById('ai-chat-box');
-    if (box) {
-        box.style.display = 'none';
-    }
+    if (box) box.style.display = 'none';
 }
 
-// ====== إرسال رسالة ======
 function sendAIMessage() {
     var input = document.getElementById('ai-chat-input');
     var messages = document.getElementById('ai-chat-messages');
@@ -320,7 +316,7 @@ function sendAIMessage() {
     var query = input.value.trim();
     if (!query) return;
 
-    // إضافة رسالة المستخدم
+    // رسالة المستخدم
     var userMsg = document.createElement('div');
     userMsg.className = 'ai-message-user';
     userMsg.textContent = query;
@@ -329,28 +325,25 @@ function sendAIMessage() {
     input.value = '';
     messages.scrollTop = messages.scrollHeight;
 
-    // إضافة رسالة تحميل
+    // رسالة تحميل
     var loadingMsg = document.createElement('div');
     loadingMsg.className = 'ai-message-loading';
     loadingMsg.textContent = '⏳ جاري التفكير...';
     messages.appendChild(loadingMsg);
     messages.scrollTop = messages.scrollHeight;
 
-    // جلب الرد من API
+    // جلب الرد
     askAI(query).then(function(response) {
-        // إزالة رسالة التحميل
         if (loadingMsg.parentNode) {
             loadingMsg.parentNode.removeChild(loadingMsg);
         }
 
-        // إضافة الرد
         var botMsg = document.createElement('div');
         botMsg.className = 'ai-message-bot';
         botMsg.textContent = response;
         messages.appendChild(botMsg);
         messages.scrollTop = messages.scrollHeight;
     }).catch(function(error) {
-        // إزالة رسالة التحميل
         if (loadingMsg.parentNode) {
             loadingMsg.parentNode.removeChild(loadingMsg);
         }
@@ -361,88 +354,6 @@ function sendAIMessage() {
         messages.appendChild(botMsg);
         messages.scrollTop = messages.scrollHeight;
     });
-}
-
-// ====== تعديل askAI عشان ترجع Promise ======
-function askAI(query) {
-    if (!query || query.trim() === '') {
-        return Promise.resolve('👋 مرحباً! أنا مساعد TrackSphere الذكي. اسألني أي حاجة!');
-    }
-
-    return fetchGeminiResponse(query);
-}
-
-// ================================================================
-//  🌐 الاتصال بـ Gemini API
-// ================================================================
-
-function fetchGeminiResponse(query) {
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
-
-    var data = {
-        contents: [{
-            parts: [{
-                text: APP_CONTEXT + '\n\nسؤال المستخدم: ' + query + '\n\nالرد:'
-            }]
-        }],
-        generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 150,
-            topP: 0.9
-        }
-    };
-
-    return fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('API error: ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-            var text = data.candidates[0].content.parts[0].text;
-            return text;
-        } else {
-            return '⚠️ آسف، حصل خطأ. جرب تسأل بشكل مختلف.';
-        }
-    })
-    .catch(function(error) {
-        console.error('AI Error:', error);
-        return fallbackResponse(query);
-    });
-}
-
-// ================================================================
-//  📚 الرد الاحتياطي (لو الـ API وقع)
-// ================================================================
-
-function fallbackResponse(query) {
-    var lowerQuery = query.toLowerCase();
-
-    var fallbacks = {
-        'اضيف عادة': 'اكتب اسم العادة في حقل الإضافة، اختار التصنيف، واضغط "أضف".',
-        'سجل عادة': 'اضغط على زر ✔️ بجانب العادة في القائمة.',
-        'السلسلة': 'السلسلة هي عدد الأيام المتتالية اللي حافظت فيها على عادة.',
-        'النقاط': 'النقاط مكافآت بتحصل عليها عند تسجيل العادات.',
-        'الإنجازات': 'جوائز بتحصل عليها عند تحقيق أهداف معينة.',
-        'شارك': 'اضغط على زر مشاركة واختار الطريقة المناسبة.',
-        'نسخ احتياطي': 'اضغط على زر "تصدير البيانات" في قسم المشاركة.'
-    };
-
-    for (var key in fallbacks) {
-        if (lowerQuery.indexOf(key) !== -1) {
-            return fallbacks[key];
-        }
-    }
-
-    return '🤔 سؤال جميل! أنا حالياً في وضع عدم الاتصال. جرب تسأل عن: إضافة عادة، تسجيل، السلسلة، النقاط، أو الإنجازات.';
 }
 
 // ================================================================
