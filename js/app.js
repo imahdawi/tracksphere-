@@ -852,4 +852,30 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// ================================================================
+//  🔄 AUTO-UPDATE SYSTEM
+// ================================================================
+
+function checkForUpdates() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(function(registration) {
+            // ✅ يطلب تحديث الـ Service Worker
+            registration.update();
+        });
+    }
+}
+
+// ✅ فحص التحديثات كل 60 ثانية
+setInterval(checkForUpdates, 60000);
+
+// ✅ فحص عند فتح الصفحة
+window.addEventListener('load', checkForUpdates);
+
+// ✅ فحص عند العودة للصفحة (من الخلفية)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        checkForUpdates();
+    }
+});
+
 console.log('🚀 App module loaded!');
