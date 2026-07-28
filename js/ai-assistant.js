@@ -2,8 +2,18 @@
 //  🤖 AI ASSISTANT MODULE - مع Gemini API
 // ================================================================
 
-// ====== مفتاح API (استبدله بمفتاحك) ======
-var GEMINI_API_KEY = '';
+// ✅ المفتاح يقرأ من البيئة (مش مكتوب في الكود)
+var GEMINI_API_KEY = ''; // هيتعبأ من الـ .env
+
+// ✅ نحاول نقرأ المفتاح من ملف .env (لو شغال على Node.js)
+if (typeof process !== 'undefined' && process.env) {
+    GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+}
+
+// ✅ لو المفتاح مش موجود، نشتغل في وضع Offline
+var AI_MODE = GEMINI_API_KEY ? 'online' : 'offline';
+
+console.log('🤖 AI Mode:', AI_MODE);
 
 // ====== معرفة التطبيق ======
 var APP_CONTEXT = `
