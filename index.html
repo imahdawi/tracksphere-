@@ -9,14 +9,14 @@
     <meta name="author" content="Mahdi Ahmed">
     <meta name="keywords" content="Habits, Habit Tracker, Productivity, TrackSphere">
     
-    <title>TrackSphere - تتبع عاداتك</title>
-
-    <!-- PWA -->
+    <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TrackSphere">
-    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>TrackSphere - تتبع عاداتك</title>
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -79,9 +79,15 @@
                     <span>Track<span>Sphere</span></span>
                 </div>
                 <div class="header-controls">
+                    <!-- ✅ زر المساعد الذكي -->
+                    <button id="ai-assistant-btn" class="btn-ai" title="المساعد الذكي" onclick="toggleAIChat()">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                    <!-- ✅ زر الإعدادات -->
                     <button id="header-settings" class="btn-settings" title="الإعدادات">
                         <i class="fas fa-cog"></i>
                     </button>
+                    <!-- ✅ زر حذف البيانات -->
                     <button id="reset-btn" class="btn-danger" title="حذف جميع البيانات">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -125,12 +131,12 @@
                 <div class="add-habit-input-group">
                     <input type="text" id="habit-input" placeholder="أضف عادة جديدة..." data-i18n-placeholder="add_placeholder" />
                     <select id="habit-category">
-                 <option value="healthy" data-i18n="add_category_healthy">💪 صحية</option>
-                 <option value="educational" data-i18n="add_category_educational">📚 تعليمية</option>
-                 <option value="spiritual" data-i18n="add_category_spiritual">🕌 روحية</option>
-                 <option value="sports" data-i18n="add_category_sports">⚽ رياضية</option>
-                 <option value="other" data-i18n="add_category_other">✨ أخرى</option>
-                 </select>
+                        <option value="healthy" data-i18n="add_category_healthy">💪 صحية</option>
+                        <option value="educational" data-i18n="add_category_educational">📚 تعليمية</option>
+                        <option value="spiritual" data-i18n="add_category_spiritual">🕌 روحية</option>
+                        <option value="sports" data-i18n="add_category_sports">⚽ رياضية</option>
+                        <option value="other" data-i18n="add_category_other">✨ أخرى</option>
+                    </select>
                 </div>
                 <button id="add-btn" data-i18n="add_button"><i class="fas fa-plus"></i> أضف</button>
             </div>
@@ -194,10 +200,27 @@
                 <h3 data-i18n="share_title"><i class="fas fa-share-alt"></i> شارك تقدمك</h3>
                 <p data-i18n="share_desc">شارك إنجازاتك مع أصحابك وحفزهم!</p>
                 <div class="share-buttons">
-                    <button onclick="shareProgress('whatsapp')" class="share-btn whatsapp" data-i18n="share_whatsapp"><i class="fab fa-whatsapp"></i> واتساب</button>
-                    <button onclick="shareProgress('instagram')" class="share-btn instagram" data-i18n="share_instagram"><i class="fab fa-instagram"></i> ستوري</button>
-                    <button onclick="shareProgress('tiktok')" class="share-btn tiktok" data-i18n="share_tiktok"><i class="fab fa-tiktok"></i> تيك توك</button>
-                    <button onclick="shareProgress('image')" class="share-btn image" data-i18n="share_image"><i class="fas fa-image"></i> صورة</button>
+                    <button onclick="shareProgress('whatsapp')" class="share-btn whatsapp" data-i18n="share_whatsapp">
+                        <i class="fab fa-whatsapp"></i> واتساب
+                    </button>
+                    <button onclick="shareProgress('instagram')" class="share-btn instagram" data-i18n="share_instagram">
+                        <i class="fab fa-instagram"></i> ستوري
+                    </button>
+                    <button onclick="shareProgress('tiktok')" class="share-btn tiktok" data-i18n="share_tiktok">
+                        <i class="fab fa-tiktok"></i> تيك توك
+                    </button>
+                    <button onclick="shareProgress('image')" class="share-btn image" data-i18n="share_image">
+                        <i class="fas fa-image"></i> صورة
+                    </button>
+                </div>
+                <!-- ✅ أزرار النسخ الاحتياطي -->
+                <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
+                    <button onclick="exportBackup()" class="share-btn" style="background:#6C63FF;color:#fff;">
+                        <i class="fas fa-download"></i> تصدير البيانات
+                    </button>
+                    <button onclick="importFromButton()" class="share-btn" style="background:#FF6D00;color:#fff;">
+                        <i class="fas fa-upload"></i> استيراد بيانات
+                    </button>
                 </div>
                 <div id="share-preview" class="share-preview" style="display:none;"></div>
             </div>
@@ -214,14 +237,22 @@
         </div>
     </footer>
 
+    <!-- ================================================================ -->
     <!-- ====== SCRIPTS ====== -->
+    <!-- ================================================================ -->
+
+    <!-- المكتبات الخارجية -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/language.js"></script>   <!-- 1️⃣ اللغة أولاً -->
-    <script src="js/storage.js"></script>    <!-- 2️⃣ التخزين -->
-    <script src="js/gamification.js"></script> <!-- 3️⃣ الإنجازات -->
-    <script src="js/charts.js"></script>     <!-- 4️⃣ الرسم البياني -->
-    <script src="js/app.js"></script>        <!-- 5️⃣ التطبيق -->
+
+    
+    <script src="js/language.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/gamification.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/backup.js"></script>
+    <script src="js/ai-assistant.js"></script>
+    <script src="js/app.js"></script>
 
 </body>
 </html>

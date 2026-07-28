@@ -1,5 +1,5 @@
 // ================================================================
-//  🚀 APP MODULE
+//  🚀 APP MODULE - النسخة النهائية مع تحميل الصور
 // ================================================================
 
 // ====== STATE ======
@@ -78,21 +78,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ================================================================
-//  ➕ ADD HABIT - ⭐ إصلاح التصنيفات
+//  ➕ ADD HABIT
 // ================================================================
 
 addBtn.addEventListener('click', function() {
     var name = habitInput.value.trim();
-    var categoryKey = habitCategory.value; // دي بقى "healthy" مش "صحية"
-
-    console.log('📝 Adding habit:', name, 'category:', categoryKey);
+    var categoryKey = habitCategory.value;
 
     if (!name) {
         showToast('toast_error_empty_name', 'error');
         return;
     }
 
-    // منع التكرار
     for (var i = 0; i < habits.length; i++) {
         if (habits[i].name.toLowerCase() === name.toLowerCase()) {
             showToast('toast_error_exists', 'warning');
@@ -100,16 +97,14 @@ addBtn.addEventListener('click', function() {
         }
     }
 
-    // التحقق من صحة التصنيف
     if (!isValidCategory(categoryKey)) {
-        console.warn('⚠️ Invalid category:', categoryKey, 'defaulting to other');
         categoryKey = 'other';
     }
 
     var newHabit = {
         id: Date.now() + Math.random() * 1000,
         name: name,
-        category: categoryKey, // ✅ "healthy" مش "صحية"
+        category: categoryKey,
         icon: getCategoryIcon(categoryKey),
         completed: false,
         streak: 0,
@@ -406,69 +401,10 @@ function toggleThemeFromSettings() {
 }
 
 // ================================================================
-//  📤 SHARE PROGRESS
+//  📤 SHARE PROGRESS - النسخة النهائية
 // ================================================================
 
-function generateShareImage() {
-    // ✅ 1. تحقق من وجود المكتبة
-    if (typeof html2canvas === 'undefined') {
-        showToast('⏳ جاري تحميل المكتبة...', 'info');
-        var script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-        script.onload = function() {
-            showToast('✅ تم التحميل، جاري إنشاء الصورة...', 'success');
-            generateShareImage();
-        };
-        script.onerror = function() {
-            showToast('⚠️ فشل تحميل المكتبة، تأكد من الاتصال بالإنترنت', 'error');
-        };
-        document.head.appendChild(script);
-        return;
-    }
-
-    var preview = document.getElementById('share-preview');
-    if (!preview) {
-        showToast('⚠️ عنصر المعاينة غير موجود', 'error');
-        return;
-    }
-
-    // ✅ 2. ظهور رسالة التحميل (بدل المعاينة الكبيرة)
-    var loadingHTML = `
-        <div style="
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: var(--card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            min-height: 120px;
-        ">
-            <div style="
-                width: 40px;
-                height: 40px;
-                border: 4px solid var(--border);
-                border-top: 4px solid #6C63FF;
-                border-radius: 50%;
-                animation: spin 0.8s linear infinite;
-            "></div>
-            <p style="
-                margin-top: 12px;
-                color: var(--text-secondary);
-                font-size: 0.9rem;
-                font-family: 'Cairo', sans-serif;
-            ">
-                ⏳ جاري تحميل الصورة...
-            </p>
-        </div>
-    `;
-
-    // ✅ 3. عرض رسالة التحميل
-    preview.style.display = 'flex';
-    preview.innerHTML = loadingHTML;
-
-    // ✅ 4. بناء الصورة الفعلية (في الخلفية)
+function generateShareText() {
     var total = habits.length;
     var today = new Date().toDateString();
     var completedToday = 0;
@@ -491,7 +427,7 @@ function generateShareImage() {
         }
     }
 
-    var todayStr = new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    var todayStr = new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' });
 
     var bestHabit = null;
     for (var i = 0; i < habits.length; i++) {
@@ -500,100 +436,22 @@ function generateShareImage() {
         }
     }
 
-    // ✅ 5. الـ HTML الخاص بالصورة (زي ما هو)
-    var html = '';
+    var text = '';
     if (currentLang === 'ar') {
-        html = `
-            <div style="text-align:center;padding:24px 20px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;width:500px;margin:0 auto;font-family:'Cairo',sans-serif;box-sizing:border-box;">
-                <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px;">
-                    <span style="font-size:2.4rem;">🚀</span>
-                    <span style="font-size:2rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
-                </div>
-                <div style="color:#A0A0C0;font-size:1rem;margin-bottom:10px;">${todayStr}</div>
-                <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
-                <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:10px 0;">
-                    <span style="background:rgba(108,99,255,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;">🔥 ${maxStreak} يوم</span>
-                    <span style="background:rgba(0,200,83,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#00C853;">📈 ${rate}%</span>
-                    <span style="background:rgba(255,214,0,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#FFD600;">⭐ ${points}</span>
-                </div>
-                ${bestHabit && bestHabit.streak > 0 ? `
-                <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
-                <div style="font-size:1rem;color:#A0A0C0;">
-                    🏆 أكثر عادة: <strong style="color:#fff;">${getCategoryIcon(bestHabit.category)} ${bestHabit.name}</strong>
-                    <span style="color:#FFD600;font-size:0.9rem;">(${bestHabit.streak} يوم)</span>
-                </div>` : ''}
-                <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;" />
-                <div style="font-size:1.2rem;color:#fff;font-weight:500;margin:6px 0;">💪 أنا بحسن من نفسي يوم عن يوم!</div>
-                <div style="font-size:0.8rem;color:#6C63FF;margin-top:8px;">#Mahdawi_Challenge</div>
-            </div>
-        `;
+        text = '🚀 يوم ' + todayStr + '\n🔥 ' + maxStreak + ' يوم متتالي\n📈 ' + rate + '% إنجاز\n⭐ ' + points + ' نقطة\n';
+        if (bestHabit && bestHabit.streak > 0) {
+            text += '🏆 ' + getCategoryIcon(bestHabit.category) + ' ' + bestHabit.name + ': ' + bestHabit.streak + ' يوم\n';
+        }
+        text += '\n💪 أنا بحسن من نفسي يوم عن يوم!\n#Mahdawi_Challenge';
     } else {
-        html = `
-            <div style="text-align:center;padding:24px 20px;background:linear-gradient(135deg, #0A0A1A 0%, #1A1A3E 100%);border-radius:20px;border:2px solid #6C63FF;width:500px;margin:0 auto;font-family:'Cairo',sans-serif;box-sizing:border-box;">
-                <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px;">
-                    <span style="font-size:2.4rem;">🚀</span>
-                    <span style="font-size:2rem;font-weight:800;color:#6C63FF;">TrackSphere</span>
-                </div>
-                <div style="color:#A0A0C0;font-size:1rem;margin-bottom:10px;">${todayStr}</div>
-                <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
-                <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:10px 0;">
-                    <span style="background:rgba(108,99,255,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;">🔥 ${maxStreak} days</span>
-                    <span style="background:rgba(0,200,83,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#00C853;">📈 ${rate}%</span>
-                    <span style="background:rgba(255,214,0,0.12);padding:6px 18px;border-radius:50px;font-weight:600;font-size:1.1rem;color:#FFD600;">⭐ ${points}</span>
-                </div>
-                ${bestHabit && bestHabit.streak > 0 ? `
-                <hr style="border-color:rgba(108,99,255,0.15);margin:8px 0;" />
-                <div style="font-size:1rem;color:#A0A0C0;">
-                    🏆 Best habit: <strong style="color:#fff;">${getCategoryIcon(bestHabit.category)} ${bestHabit.name}</strong>
-                    <span style="color:#FFD600;font-size:0.9rem;">(${bestHabit.streak} days)</span>
-                </div>` : ''}
-                <hr style="border-color:rgba(108,99,255,0.15);margin:10px 0;" />
-                <div style="font-size:1.2rem;color:#fff;font-weight:500;margin:6px 0;">💪 I'm improving myself every day!</div>
-                <div style="font-size:0.8rem;color:#6C63FF;margin-top:8px;">#Mahdawi_Challenge</div>
-            </div>
-        `;
+        text = '🚀 Day ' + todayStr + '\n🔥 ' + maxStreak + ' day streak\n📈 ' + rate + '% completion\n⭐ ' + points + ' points\n';
+        if (bestHabit && bestHabit.streak > 0) {
+            text += '🏆 ' + getCategoryIcon(bestHabit.category) + ' ' + bestHabit.name + ': ' + bestHabit.streak + ' days\n';
+        }
+        text += '\n💪 I\'m improving myself every day!\n#Mahdawi_Challenge';
     }
 
-    // ✅ 6. إنشاء الصورة من الـ HTML (في الخلفية)
-    var tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.top = '-9999px';
-    tempDiv.innerHTML = html;
-    document.body.appendChild(tempDiv);
-
-    html2canvas(tempDiv, {
-        backgroundColor: null,
-        scale: 2.5,
-        useCORS: true,
-        logging: false,
-        width: 500
-    }).then(function(canvas) {
-        // ✅ 7. تحميل الصورة
-        var link = document.createElement('a');
-        link.download = 'tracksphere_' + new Date().toISOString().split('T')[0] + '.png';
-        link.href = canvas.toDataURL('image/png');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // ✅ 8. إزالة العنصر المؤقت
-        document.body.removeChild(tempDiv);
-
-        // ✅ 9. إخفاء المعاينة بعد 3 ثواني
-        setTimeout(function() {
-            preview.style.display = 'none';
-            preview.innerHTML = '';
-            showToast('✅ تم تحميل الصورة بنجاح!', 'success');
-        }, 3000);
-
-    }).catch(function(err) {
-        console.error('Share error:', err);
-        document.body.removeChild(tempDiv);
-        preview.style.display = 'none';
-        preview.innerHTML = '';
-        showToast('toast_share_error', 'error');
-    });
+    return text;
 }
 
 function shareProgress(platform) {
@@ -606,7 +464,12 @@ function shareProgress(platform) {
     }
 }
 
+// ================================================================
+//  📸 GENERATE SHARE IMAGE - الحل النهائي
+// ================================================================
+
 function generateShareImage() {
+    // 1. التحقق من وجود المكتبة
     if (typeof html2canvas === 'undefined') {
         showToast('⏳ جاري تحميل المكتبة...', 'info');
         var script = document.createElement('script');
@@ -628,6 +491,71 @@ function generateShareImage() {
         return;
     }
 
+    // 2. عرض رسالة التحميل
+    preview.style.display = 'block';
+    preview.innerHTML = `
+        <div style="text-align:center;padding:20px;">
+            <div style="display:inline-block;width:30px;height:30px;border:3px solid var(--border);border-top:3px solid #6C63FF;border-radius:50%;animation: spin 1s linear infinite;"></div>
+            <p style="margin-top:8px;color:var(--text-secondary);font-size:14px;font-family:'Cairo',sans-serif;">⏳ جاري تحميل الصورة...</p>
+        </div>
+    `;
+
+    // 3. بناء محتوى الصورة
+    var shareHTML = buildShareHTML();
+
+    // 4. إنشاء عنصر مؤقت للصورة (خارج الشاشة)
+    var tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '-9999px';
+    tempContainer.style.width = '500px';
+    tempContainer.style.background = 'transparent';
+    tempContainer.style.zIndex = '-9999';
+    tempContainer.style.pointerEvents = 'none';
+    tempContainer.style.overflow = 'hidden';
+    tempContainer.innerHTML = shareHTML;
+    document.body.appendChild(tempContainer);
+
+    // 5. انتظار 100ms عشان العنصر يظهر في DOM
+    setTimeout(function() {
+        html2canvas(tempContainer, {
+            scale: 2.5,
+            useCORS: true,
+            allowTaint: false,
+            logging: false,
+            width: 500,
+            height: tempContainer.scrollHeight,
+            backgroundColor: null
+        }).then(function(canvas) {
+            // 6. تحميل الصورة
+            var link = document.createElement('a');
+            link.download = 'tracksphere_' + new Date().toISOString().split('T')[0] + '.png';
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 7. تنظيف
+            document.body.removeChild(tempContainer);
+            preview.style.display = 'none';
+            preview.innerHTML = '';
+            showToast('✅ تم تحميل الصورة بنجاح!', 'success');
+
+        }).catch(function(err) {
+            console.error('Share error:', err);
+            document.body.removeChild(tempContainer);
+            preview.style.display = 'none';
+            preview.innerHTML = '';
+            showToast('⚠️ حدث خطأ في تحميل الصورة', 'error');
+        });
+    }, 100);
+}
+
+// ================================================================
+//  🖼️ BUILD SHARE HTML - بناء محتوى الصورة
+// ================================================================
+
+function buildShareHTML() {
     var total = habits.length;
     var today = new Date().toDateString();
     var completedToday = 0;
@@ -712,34 +640,7 @@ function generateShareImage() {
         `;
     }
 
-    preview.style.display = 'flex';
-    preview.style.justifyContent = 'center';
-    preview.style.alignItems = 'center';
-    preview.style.background = 'transparent';
-    preview.style.padding = '0';
-    preview.style.margin = '0 auto';
-    preview.style.width = '500px';
-    preview.style.maxWidth = '100%';
-    preview.innerHTML = html;
-
-    html2canvas(preview, {
-        backgroundColor: null,
-        scale: 2.5,
-        useCORS: true,
-        logging: false,
-        width: 500
-    }).then(function(canvas) {
-        var link = document.createElement('a');
-        link.download = 'tracksphere_' + new Date().toISOString().split('T')[0] + '.png';
-        link.href = canvas.toDataURL('image/png');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast('toast_share_image', 'success');
-    }).catch(function(err) {
-        console.error('Share error:', err);
-        showToast('toast_share_error', 'error');
-    });
+    return html;
 }
 
 // ================================================================
